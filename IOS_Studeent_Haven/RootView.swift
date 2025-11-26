@@ -35,7 +35,7 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            HomeTab()
+            HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
@@ -64,37 +64,6 @@ struct MainTabView: View {
 }
 
 /// Home tab with college selection and stats
-struct HomeTab: View {
-    @EnvironmentObject var appState: AppState
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    Text("Welcome to Study Haven!")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .padding()
-                    
-                    Text("Select your college to get started")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    // Quick stats or info can go here
-                    VStack(spacing: 12) {
-                        StatCard(title: "Classes", value: "0", icon: "book.fill")
-                        StatCard(title: "Notes", value: "0", icon: "note.text")
-                        StatCard(title: "Flashcards", value: "0", icon: "rectangle.stack.fill")
-                    }
-                    .padding()
-                }
-            }
-            .navigationTitle("Home")
-        }
-    }
-}
-
-
 /// Classes tab - simplified for iOS
 struct ClassesTab: View {
     @EnvironmentObject var appState: AppState
