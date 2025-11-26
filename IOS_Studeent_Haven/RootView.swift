@@ -94,34 +94,6 @@ struct HomeTab: View {
     }
 }
 
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title)
-                .foregroundColor(.blue)
-                .frame(width: 50)
-            
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                Text(value)
-                    .font(.title2)
-                    .fontWeight(.bold)
-            }
-            
-            Spacer()
-        }
-        .padding()
-        .background(Color.gray.opacity(0.15))
-        .cornerRadius(12)
-    }
-}
 
 /// Classes tab - simplified for iOS
 struct ClassesTab: View {
