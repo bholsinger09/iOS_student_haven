@@ -96,8 +96,8 @@ struct ClassesTab: View {
                         classRepository: appState.classRepository),
                     userId: appState.currentUser?.id ?? UUID().uuidString
                 ),
-                createClassUseCase: CreateClassUseCase(classRepository: appState.classRepository),
-                updateClassUseCase: UpdateClassUseCase(classRepository: appState.classRepository),
+                createClassUseCase: CreateClassUseCase(repository: appState.classRepository),
+                updateClassUseCase: UpdateClassUseCase(repository: appState.classRepository),
                 userId: appState.currentUser?.id ?? UUID().uuidString
             )
         }
@@ -145,9 +145,9 @@ struct ClassListView: View {
             AddClassView(
                 viewModel: ClassFormViewModel(
                     createClassUseCase: CreateClassUseCase(
-                        classRepository: appState.classRepository),
+                        repository: appState.classRepository),
                     updateClassUseCase: UpdateClassUseCase(
-                        classRepository: appState.classRepository),
+                        repository: appState.classRepository),
                     userId: userId.uuidString
                 ))
         }
