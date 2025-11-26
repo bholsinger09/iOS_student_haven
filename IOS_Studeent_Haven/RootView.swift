@@ -89,16 +89,8 @@ struct ClassesTab: View {
 
     var body: some View {
         NavigationStack {
-            ClassManagement.ClassListView(
-                viewModel: ClassListViewModel(
-                    getClassesUseCase: GetClassesUseCase(classRepository: appState.classRepository),
-                    deleteClassUseCase: DeleteClassUseCase(
-                        classRepository: appState.classRepository),
-                    userId: appState.currentUser?.id ?? UUID().uuidString
-                ),
-                createClassUseCase: IOS_Student_Haven.CreateClassUseCase(repository: appState.classRepository),
-                updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase(repository: appState.classRepository),
-                userId: appState.currentUser?.id ?? UUID().uuidString
+            ClassListView(
+                userId: UUID(uuidString: appState.currentUser?.id ?? UUID().uuidString) ?? UUID()
             )
         }
     }
