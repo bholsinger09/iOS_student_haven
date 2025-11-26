@@ -164,10 +164,15 @@ public struct LoginView: View {
                             .foregroundColor(.gray)
                             .font(.subheadline)
                         NavigationLink("Sign Up") {
-                            // RegisterView will be injected here
-                            Text("Register View")
+                            RegisterView(
+                                viewModel: RegisterViewModel(
+                                    registerUseCase: RegisterUseCase(
+                                        authRepository: MockAuthRepositoryImpl()
+                                    )
+                                )
+                            )
                         }
-                        .font(.subheadline)
+                        NavigationLink("Sign Up") {
                         .fontWeight(.semibold)
                         .foregroundColor(Color(red: 0.73, green: 0.33, blue: 0.83))
                     }
