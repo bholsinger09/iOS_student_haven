@@ -151,6 +151,11 @@ struct ClassListView: View {
         .task {
             await loadClasses()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ClassDidSave"))) { _ in
+            Task {
+                await loadClasses()
+            }
+        }
     }
 
     private func loadClasses() async {
