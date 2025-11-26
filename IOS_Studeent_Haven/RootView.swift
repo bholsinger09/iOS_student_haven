@@ -8,22 +8,41 @@ import SwiftUI
 /// Root view that handles authentication state
 struct RootView: View {
     @EnvironmentObject var appState: AppState
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showOnboarding = false
 
     var body: some View {
         if appState.isAuthenticated {
             MainTabView()
+                .sheet(isPresented: $showOnboarding) {
+                    OnboardingView()
+                }
+                .onAppear {
+                    if !hasCompletedOnboarding {
+                        showOnboarding = true
+                    }
+                }
         } else {
-            LoginView(
-                viewModel: LoginViewModel(
-                    loginUseCase: LoginUseCase(
-                        authRepository: appState.authRepository
-                    )
+            AuthenticationCoordinator()
+        }
+    }
+}
+
+/// Authentication coordinator
+struct AuthenticationCoordinator: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        LoginView(
+            viewModel: LoginViewModel(
+                loginUseCase: LoginUseCase(
+                    authRepository: appState.authRepository
                 )
             )
-            .onReceive(NotificationCenter.default.publisher(for: .userDidLogin)) { notification in
-                if let user = notification.object as? User {
-                    appState.login(user: user)
-                }
+        )
+        .onReceive(NotificationCenter.default.publisher(for: .userDidLogin)) { notification in
+            if let user = notification.object as? User {
+                appState.login(user: user)
             }
         }
     }
@@ -39,7 +58,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
                 }
-            
+
             ClassesTab()
                 .tabItem {
                     Label("Classes", systemImage: "book.fill")
@@ -47,7 +66,7 @@ struct MainTabView: View {
 
             NotesTab()
                 .tabItem {
-                    Label("Notes", systemImage: "note.text")
+                    Label("Classroom Notetaking", systemImage: "pencil.and.list.clipboard")
                 }
 
             FlashcardsTab()
@@ -63,66 +82,84 @@ struct MainTabView: View {
     }
 }
 
-/// Home tab with college selection and stats
-/// Classes tab - simplified for iOS
+/// Classes tab
 struct ClassesTab: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        NavigationStack {
+            ClassManagement.ClassListView(
+                viewModel: ClassListViewModel(
+                    getClassesUseCase: GetClassesUseCase(classRepository: appState.classRepository),
+                    deleteClassUseCase: DeleteClassUseCase(
+                        classRepository: appState.classRepository),
+                    userId: appState.currentUser?.id ?? UUID().uuidString
+                ),
+                createClassUseCase: CreateClassUseCase(classRepository: appState.classRepository),
+                updateClassUseCase: UpdateClassUseCase(classRepository: appState.classRepository),
+                userId: appState.currentUser?.id ?? UUID().uuidString
+            )
+        }
+    }
+}
+
+/// Class list view
+struct ClassListView: View {
+    let userId: UUID
     @EnvironmentObject var appState: AppState
     @State private var classes: [Class] = []
     @State private var isLoading = false
     @State private var showingAddClass = false
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if isLoading {
-                    ProgressView()
-                } else if classes.isEmpty {
-                    VStack(spacing: 20) {
-                        Image(systemName: "book.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        Text("No Classes Yet")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        Text("Tap + to add your first class")
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    List {
-                        ForEach(classes) { classItem in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(classItem.name)
-                                    .font(.headline)
-                                Text(classItem.courseCode)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.vertical, 4)
+        Group {
+            if isLoading {
+                ProgressView()
+            } else if classes.isEmpty {
+                EmptyClassesView {
+                    showingAddClass = true
+                }
+            } else {
+                List {
+                    ForEach(classes) { classItem in
+                        NavigationLink(destination: ClassDetailView(classItem: classItem)) {
+                            ClassRow(classItem: classItem)
                         }
-                        .onDelete(perform: deleteClasses)
+                    }
+                    .onDelete { indexSet in
+                        deleteClasses(at: indexSet)
                     }
                 }
             }
-            .navigationTitle("My Classes")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddClass = true }) {
-                        Image(systemName: "plus")
-                    }
+        }
+        .navigationTitle("My Classes")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: { showingAddClass = true }) {
+                    Image(systemName: "plus")
                 }
             }
-            .task {
-                await loadClasses()
-            }
+        }
+        .sheet(isPresented: $showingAddClass) {
+            AddClassView(
+                viewModel: ClassFormViewModel(
+                    createClassUseCase: CreateClassUseCase(
+                        classRepository: appState.classRepository),
+                    updateClassUseCase: UpdateClassUseCase(
+                        classRepository: appState.classRepository),
+                    userId: userId.uuidString
+                ))
+        }
+        .task {
+            await loadClasses()
         }
     }
 
     private func loadClasses() async {
-        guard let userId = appState.currentUser?.id else { return }
         isLoading = true
         do {
             let useCase = GetClassesUseCase(classRepository: appState.classRepository)
-            classes = try await useCase.execute(userId: userId)
+            classes = try await useCase.execute(userId: userId.uuidString)
         } catch {
             print("Error loading classes: \(error)")
         }
@@ -130,126 +167,220 @@ struct ClassesTab: View {
     }
 
     private func deleteClasses(at offsets: IndexSet) {
-        let classesToDelete = offsets.map { classes[$0] }
         Task {
             let useCase = DeleteClassUseCase(classRepository: appState.classRepository)
-            for classItem in classesToDelete {
+            for index in offsets {
                 do {
-                    try await useCase.execute(classId: classItem.id)
+                    try await useCase.execute(classId: classes[index].id)
+                    classes.remove(at: index)
                 } catch {
                     print("Error deleting class: \(error)")
                 }
             }
-            await MainActor.run {
-                classes.remove(atOffsets: offsets)
-            }
         }
     }
 }
 
-/// Notes tab - simplified for iOS
+/// Empty state for classes
+struct EmptyClassesView: View {
+    let onAddClass: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "book.closed.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.blue)
+
+            Text("No Classes Yet")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            Text("Add your first class to get started")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+
+            Button(action: onAddClass) {
+                Label("Add Class", systemImage: "plus")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct ClassRow: View {
+    let classItem: Class
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(classItem.name)
+                .font(.headline)
+            Text(classItem.courseCode)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+/// Notes tab
 struct NotesTab: View {
     @EnvironmentObject var appState: AppState
-    @State private var notes: [Note] = []
 
     var body: some View {
         NavigationStack {
-            Group {
-                if notes.isEmpty {
-                    VStack(spacing: 20) {
-                        Image(systemName: "note.text")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        Text("No Notes Yet")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                        Text("Create classes first, then add notes")
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    List(notes) { note in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(note.title)
-                                .font(.headline)
-                            Text(note.content.prefix(100))
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .lineLimit(2)
-                        }
-                        .padding(.vertical, 4)
-                    }
+            if let userId = appState.currentUser?.id {
+                NotesListView(
+                    viewModel: NotesListViewModel(
+                        getNotesUseCase: GetNotesUseCase(noteRepository: appState.noteRepository),
+                        deleteNoteUseCase: DeleteNoteUseCase(
+                            noteRepository: appState.noteRepository),
+                        classId: appState.currentUser?.collegeId ?? ""
+                    ),
+                    classId: appState.currentUser?.collegeId ?? "",
+                    userId: userId,
+                    createNoteUseCase: CreateNoteUseCase(noteRepository: appState.noteRepository),
+                    updateNoteUseCase: UpdateNoteUseCase(noteRepository: appState.noteRepository)
+                )
+            } else {
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    Text("Please log in to view notes")
+                        .foregroundColor(.white)
                 }
             }
-            .navigationTitle("Notes")
         }
     }
 }
 
-/// Flashcards tab - simplified for iOS
+/// Note row view
+struct NoteRowView: View {
+    let note: Note
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(note.title)
+                .font(.headline)
+
+            Text(note.content.prefix(100))
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(2)
+
+            if !note.tags.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(note.tags.prefix(3), id: \.self) { tag in
+                        Text("#\(tag)")
+                            .font(.caption2)
+                            .foregroundColor(.blue)
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+/// Flashcards tab
 struct FlashcardsTab: View {
     @EnvironmentObject var appState: AppState
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "rectangle.stack.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.gray)
-                Text("Flashcards Coming Soon")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                Text("Create flashcards from your notes")
-                    .foregroundColor(.secondary)
+            if let userId = appState.currentUser?.id {
+                FlashcardListView(
+                    viewModel: FlashcardListViewModel(
+                        getFlashcardsUseCase: GetFlashcardsUseCase(
+                            flashcardRepository: appState.flashcardRepository),
+                        updateFlashcardUseCase: UpdateFlashcardUseCase(
+                            flashcardRepository: appState.flashcardRepository),
+                        createFlashcardUseCase: CreateFlashcardUseCase(
+                            flashcardRepository: appState.flashcardRepository),
+                        classId: appState.currentUser?.collegeId ?? "",
+                        userId: userId
+                    )
+                )
+            } else {
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    Text("Please log in to view flashcards")
+                        .foregroundColor(.white)
+                }
             }
-            .navigationTitle("Flashcards")
         }
     }
 }
 
+/// Flashcard row view
+struct FlashcardRowView: View {
+    let flashcard: Flashcard
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(flashcard.front)
+                .font(.headline)
+            Text(flashcard.back)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+/// Empty state for flashcards
+struct EmptyFlashcardsView: View {
+    let onCreateFlashcard: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Image(systemName: "rectangle.stack.fill")
+                    .font(.system(size: 70))
+                    .foregroundColor(.green)
+
+                Text("No Flashcards Yet")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+
+                Text("Create notes and generate flashcards to start studying")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+
+                Button(action: onCreateFlashcard) {
+                    Text("Create Flashcard")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(minWidth: 180, minHeight: 44)
+                        .background(Color(red: 0.73, green: 0.33, blue: 0.83))
+                        .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 10)
+            }
+        }
+    }
+}
 
 /// Profile tab
 struct ProfileTab: View {
     @EnvironmentObject var appState: AppState
 
     var body: some View {
-        NavigationStack {
-            List {
-                if let user = appState.currentUser {
-                    Section("Account") {
-                        HStack {
-                            Text("Name")
-                            Spacer()
-                            Text(user.name)
-                                .foregroundColor(.secondary)
-                        }
-
-                        HStack {
-                            Text("Email")
-                            Spacer()
-                            Text(user.email)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                Section {
-                    Button(
-                        role: .destructive,
-                        action: {
-                            Task {
-                                await appState.logout()
-                            }
-                        }
-                    ) {
-                        HStack {
-                            Spacer()
-                            Text("Logout")
-                            Spacer()
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Profile")
-        }
+        ProfileView(viewModel: ProfileViewModel(appState: appState))
     }
+}
+
+// Notification names
+extension Notification.Name {
+    static let userDidLogin = Notification.Name("userDidLogin")
 }
