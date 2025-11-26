@@ -38,7 +38,8 @@ struct AuthenticationCoordinator: View {
                 loginUseCase: LoginUseCase(
                     authRepository: appState.authRepository
                 )
-            )
+            ),
+            authRepository: appState.authRepository
         )
         .onReceive(NotificationCenter.default.publisher(for: .userDidLogin)) { notification in
             if let user = notification.object as? User {

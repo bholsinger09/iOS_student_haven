@@ -5,9 +5,11 @@ import SwiftUI
 public struct LoginView: View {
     @StateObject private var viewModel: LoginViewModel
     @State private var isPasswordVisible = false
+    private let authRepository: any AuthRepositoryProtocol
 
-    public init(viewModel: LoginViewModel) {
+    public init(viewModel: LoginViewModel, authRepository: any AuthRepositoryProtocol) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.authRepository = authRepository
     }
 
     public var body: some View {
@@ -174,7 +176,7 @@ public struct LoginView: View {
                             RegisterView(
                                 viewModel: RegisterViewModel(
                                     registerUseCase: RegisterUseCase(
-                                        authRepository: MockAuthRepositoryImpl()
+                                        authRepository: authRepository
                                     )
                                 )
                             )
