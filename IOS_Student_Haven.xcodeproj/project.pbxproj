@@ -15,7 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		36D8B8862ED76FE0009B2305 /* IOS_Studeent_Haven.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IOS_Studeent_Haven.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		36D8B8862ED76FE0009B2305 /* IOS_Student_Haven.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IOS_Student_Haven.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -61,7 +61,7 @@
 		36D8B8872ED76FE0009B2305 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				36D8B8862ED76FE0009B2305 /* IOS_Studeent_Haven.app */,
+				36D8B8862ED76FE0009B2305 /* IOS_Student_Haven.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,9 +69,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		36D8B8852ED76FE0009B2305 /* IOS_Studeent_Haven */ = {
+		36D8B8852ED76FE0009B2305 /* IOS_Student_Haven */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 36D8B8912ED76FE0009B2305 /* Build configuration list for PBXNativeTarget "IOS_Studeent_Haven" */;
+			buildConfigurationList = 36D8B8912ED76FE0009B2305 /* Build configuration list for PBXNativeTarget "IOS_Student_Haven" */;
 			buildPhases = (
 				36D8B8822ED76FE0009B2305 /* Sources */,
 				36D8B8832ED76FE0009B2305 /* Frameworks */,
@@ -84,7 +84,7 @@
 			fileSystemSynchronizedGroups = (
 				36D8B8882ED76FE0009B2305 /* IOS_Studeent_Haven */,
 			);
-			name = IOS_Studeent_Haven;
+			name = IOS_Student_Haven;
 			packageProductDependencies = (
 				367876F82ED77FA400ABD929 /* Authentication */,
 				367876FA2ED77FA900ABD929 /* ClassManagement */,
@@ -93,7 +93,7 @@
 				367877002ED77FB900ABD929 /* Notes */,
 			);
 			productName = IOS_Studeent_Haven;
-			productReference = 36D8B8862ED76FE0009B2305 /* IOS_Studeent_Haven.app */;
+			productReference = 36D8B8862ED76FE0009B2305 /* IOS_Student_Haven.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -111,7 +111,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 36D8B8812ED76FE0009B2305 /* Build configuration list for PBXProject "IOS_Studeent_Haven" */;
+			buildConfigurationList = 36D8B8812ED76FE0009B2305 /* Build configuration list for PBXProject "IOS_Student_Haven" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -128,7 +128,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				36D8B8852ED76FE0009B2305 /* IOS_Studeent_Haven */,
+				36D8B8852ED76FE0009B2305 /* IOS_Student_Haven */,
 			);
 		};
 /* End PBXProject section */
@@ -295,7 +295,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Ben.IOS-Studeent-Haven";
+				PRODUCT_BUNDLE_IDENTIFIER = com.bholsinger.studentstudyhaven;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -323,7 +323,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.Ben.IOS-Studeent-Haven";
+				PRODUCT_BUNDLE_IDENTIFIER = com.bholsinger.studentstudyhaven;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -334,7 +334,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		36D8B8812ED76FE0009B2305 /* Build configuration list for PBXProject "IOS_Studeent_Haven" */ = {
+		36D8B8812ED76FE0009B2305 /* Build configuration list for PBXProject "IOS_Student_Haven" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				36D8B88F2ED76FE0009B2305 /* Debug */,
@@ -343,7 +343,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		36D8B8912ED76FE0009B2305 /* Build configuration list for PBXNativeTarget "IOS_Studeent_Haven" */ = {
+		36D8B8912ED76FE0009B2305 /* Build configuration list for PBXNativeTarget "IOS_Student_Haven" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				36D8B8922ED76FE0009B2305 /* Debug */,
