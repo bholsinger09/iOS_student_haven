@@ -96,8 +96,8 @@ struct ClassesTab: View {
                         classRepository: appState.classRepository),
                     userId: appState.currentUser?.id ?? UUID().uuidString
                 ),
-                createClassUseCase: CreateClassUseCase(repository: appState.classRepository),
-                updateClassUseCase: UpdateClassUseCase(repository: appState.classRepository),
+                createClassUseCase: IOS_Student_Haven.CreateClassUseCase(repository: appState.classRepository),
+                updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase(repository: appState.classRepository),
                 userId: appState.currentUser?.id ?? UUID().uuidString
             )
         }
@@ -144,9 +144,9 @@ struct ClassListView: View {
         .sheet(isPresented: $showingAddClass) {
             AddClassView(
                 viewModel: ClassFormViewModel(
-                    createClassUseCase: CreateClassUseCase(
+                    createClassUseCase: IOS_Student_Haven.CreateClassUseCase(
                         repository: appState.classRepository),
-                    updateClassUseCase: UpdateClassUseCase(
+                    updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase(
                         repository: appState.classRepository),
                     userId: userId.uuidString
                 ))

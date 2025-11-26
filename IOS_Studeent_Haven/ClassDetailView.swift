@@ -79,8 +79,8 @@ struct ClassDetailView: View {
         .sheet(isPresented: $showEditSheet) {
             if let userId = appState.currentUser?.id {
                 AddClassView(viewModel: ClassFormViewModel(
-                    createClassUseCase: CreateClassUseCase(repository: appState.classRepository),
-                    updateClassUseCase: UpdateClassUseCase(repository: appState.classRepository),
+                    createClassUseCase: IOS_Student_Haven.CreateClassUseCase(repository: appState.classRepository),
+                    updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase(repository: appState.classRepository),
                     userId: userId,
                     existingClass: classItem
                 ))
