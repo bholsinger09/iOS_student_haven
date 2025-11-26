@@ -7,7 +7,7 @@ public struct ForgotPasswordView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: ForgotPasswordViewModel
 
-    public init(authRepository: AuthRepositoryProtocol) {
+    public init(authRepository: any AuthRepositoryProtocol) {
         _viewModel = StateObject(
             wrappedValue: ForgotPasswordViewModel(authRepository: authRepository))
     }
@@ -117,7 +117,7 @@ class ForgotPasswordViewModel: ObservableObject {
 
     private let resetPasswordUseCase: ResetPasswordUseCase
 
-    init(authRepository: AuthRepositoryProtocol) {
+    init(authRepository: any AuthRepositoryProtocol) {
         self.resetPasswordUseCase = ResetPasswordUseCase(authRepository: authRepository)
     }
 
