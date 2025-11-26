@@ -199,7 +199,7 @@ struct ProfileView: View {
                     .background(Color.white.opacity(0.1))
 
                 NavigationLink {
-                    Text("Settings Coming Soon").navigationTitle("Settings")
+                    SettingsView()
                 } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "gear")
