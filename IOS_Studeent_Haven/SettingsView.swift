@@ -134,6 +134,9 @@ struct SettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .alert("Delete Account", isPresented: $showDeleteAccountAlert) {
             TextField("Enter your email to confirm", text: $confirmationEmail)
+                .textInputAutocapitalization(.never)
+                .keyboardType(.emailAddress)
+                .autocorrectionDisabled()
             Button("Cancel", role: .cancel) {
                 confirmationEmail = ""
             }
