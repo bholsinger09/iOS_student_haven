@@ -14,8 +14,8 @@ final class ClassFormViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isSaved: Bool = false
 
-    private let createClassUseCase: CreateClassUseCase
-    private let updateClassUseCase: UpdateClassUseCase
+    private let createClassUseCase: IOS_Student_Haven.CreateClassUseCase
+    private let updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase
     private let userId: String
     fileprivate(set) var existingClass: Class?
 
@@ -25,8 +25,8 @@ final class ClassFormViewModel: ObservableObject {
     }
 
     init(
-        createClassUseCase: CreateClassUseCase,
-        updateClassUseCase: UpdateClassUseCase,
+        createClassUseCase: IOS_Student_Haven.CreateClassUseCase,
+        updateClassUseCase: IOS_Student_Haven.UpdateClassUseCase,
         userId: String,
         existingClass: Class? = nil
     ) {
