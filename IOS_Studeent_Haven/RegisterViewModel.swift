@@ -38,7 +38,17 @@ public final class RegisterViewModel: ObservableObject {
                 name: name,
                 collegeId: selectedCollegeId?.uuidString
             )
-            _ = try await registerUseCase.execute(data: data)
+            let session = try await registerUseCase.execute(data: data)
+            
+            // Reset onboarding flag for new user
+            UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+            
+            // Auto-login the newly registered user
+            NotificationCenter.default.post(
+                name: NSNotification.Name("UserDidRegister"),
+                object: session.user
+            )
+            
             isRegistered = true
         } catch let error as AppError {
             errorMessage = error.localizedDescription

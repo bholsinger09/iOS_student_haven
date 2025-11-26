@@ -46,6 +46,11 @@ struct AuthenticationCoordinator: View {
                 appState.login(user: user)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("UserDidRegister"))) { notification in
+            if let user = notification.object as? User {
+                appState.login(user: user)
+            }
+        }
     }
 }
 
