@@ -71,12 +71,16 @@ public struct LoginView: View {
                                         .textFieldStyle(.plain)
                                         .fontWeight(.bold)
                                         .foregroundColor(.black)
+                                        .textInputAutocapitalization(.never)
+                                        .autocorrectionDisabled()
                                         .textContentType(.password)
                                 } else {
                                     SecureField("Enter your password", text: $viewModel.password)
                                         .textFieldStyle(.plain)
                                         .fontWeight(.bold)
                                         .foregroundColor(.black)
+                                        .textInputAutocapitalization(.never)
+                                        .autocorrectionDisabled()
                                         .textContentType(.password)
                                 }
                                 Button(action: {
