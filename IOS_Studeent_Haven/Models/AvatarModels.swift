@@ -37,7 +37,6 @@ struct Avatar: Identifiable, Codable, Equatable {
         self.gender = gender
         self.age = age
         self.appearance = appearance
-        self.currentOutfit = currentOutfit
         self.ownedClothingItems = ClothingItem.defaultItems
         self.createdAt = Date()
         self.lastModified = Date()
@@ -46,6 +45,17 @@ struct Avatar: Identifiable, Codable, Equatable {
         self.arFacePhotoData = nil
         self.facePhotoData = nil
         self.faceLandmarksData = nil
+        
+        // Ensure outfit has at least default items
+        if currentOutfit.top == nil, currentOutfit.bottom == nil {
+            self.currentOutfit = Outfit(
+                top: ClothingItem.defaultItems.first(where: { $0.name == "Long Sleeve Shirt" }),
+                bottom: ClothingItem.defaultItems.first(where: { $0.name == "Basic Jeans" }),
+                shoes: ClothingItem.defaultItems.first(where: { $0.name == "White Sneakers" })
+            )
+        } else {
+            self.currentOutfit = currentOutfit
+        }
     }
     
     // Check if this has ARKit TrueDepth scan (highest quality)

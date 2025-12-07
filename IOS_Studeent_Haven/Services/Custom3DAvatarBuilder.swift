@@ -79,7 +79,7 @@ class Custom3DAvatarBuilder {
         
         // Realistic skin material
         let headMaterial = SCNMaterial()
-        headMaterial.diffuse.contents = appearance.skinTone.color
+        headMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
         headMaterial.specular.contents = UIColor.white.withAlphaComponent(0.1)
         headMaterial.shininess = 0.05
         headMaterial.roughness.contents = 0.8
@@ -94,7 +94,7 @@ class Custom3DAvatarBuilder {
         let neckGeometry = SCNCylinder(radius: 0.05, height: 0.10)
         neckGeometry.radialSegmentCount = 24
         let neckMaterial = SCNMaterial()
-        neckMaterial.diffuse.contents = appearance.skinTone.color
+        neckMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
         neckMaterial.lightingModel = .physicallyBased
         neckGeometry.materials = [neckMaterial]
         let neckNode = SCNNode(geometry: neckGeometry)
@@ -171,7 +171,7 @@ class Custom3DAvatarBuilder {
         let irisGeometry = SCNCylinder(radius: 0.0095, height: 0.002)
         irisGeometry.radialSegmentCount = 32
         let irisMaterial = SCNMaterial()
-        irisMaterial.diffuse.contents = appearance.eyeColor.color
+        irisMaterial.diffuse.contents = UIColor(appearance.eyeColor.color)
         irisMaterial.specular.contents = UIColor.white.withAlphaComponent(0.5)
         irisMaterial.metalness.contents = 0.1
         irisMaterial.roughness.contents = 0.3
@@ -257,7 +257,7 @@ class Custom3DAvatarBuilder {
         let earGeometry = SCNSphere(radius: 0.025)
         earGeometry.segmentCount = 24
         let earMaterial = SCNMaterial()
-        earMaterial.diffuse.contents = skinTone.color
+        earMaterial.diffuse.contents = UIColor(skinTone.color)
         earMaterial.lightingModel = .physicallyBased
         earGeometry.materials = [earMaterial]
         
@@ -302,7 +302,7 @@ class Custom3DAvatarBuilder {
         
         // Realistic hair material
         let hairMaterial = SCNMaterial()
-        hairMaterial.diffuse.contents = color.color
+        hairMaterial.diffuse.contents = UIColor(color.color)
         hairMaterial.specular.contents = UIColor.white.withAlphaComponent(0.3)
         hairMaterial.shininess = 0.6
         hairMaterial.roughness.contents = 0.5
@@ -332,10 +332,17 @@ class Custom3DAvatarBuilder {
         (upperTorsoGeometry as SCNCapsule).radialSegmentCount = 36
         (upperTorsoGeometry as SCNCapsule).heightSegmentCount = 12
         
-        let shirtColor = outfit.top?.color.color ?? appearance.skinTone.color
+        // Get shirt color, default to nice blue if no outfit
+        let shirtColor: Color
+        if let top = outfit.top {
+            shirtColor = top.color.color
+        } else {
+            shirtColor = .blue  // Default shirt color
+        }
+        
         let torsoMaterial = SCNMaterial()
-        torsoMaterial.diffuse.contents = shirtColor
-        torsoMaterial.roughness.contents = 0.7
+        torsoMaterial.diffuse.contents = UIColor(shirtColor)
+        torsoMaterial.roughness.contents = 0.6
         torsoMaterial.lightingModel = .physicallyBased
         upperTorsoGeometry.materials = [torsoMaterial]
         
@@ -359,7 +366,8 @@ class Custom3DAvatarBuilder {
         let shoulderGeometry = SCNSphere(radius: CGFloat(0.08 * bodyType))
         shoulderGeometry.segmentCount = 24
         let shoulderMaterial = SCNMaterial()
-        shoulderMaterial.diffuse.contents = shirtColor
+        shoulderMaterial.diffuse.contents = UIColor(shirtColor)
+        shoulderMaterial.roughness.contents = 0.6
         shoulderMaterial.lightingModel = .physicallyBased
         shoulderGeometry.materials = [shoulderMaterial]
         
@@ -378,7 +386,7 @@ class Custom3DAvatarBuilder {
         let armNode = SCNNode()
         
         let skinMaterial = SCNMaterial()
-        skinMaterial.diffuse.contents = skinTone.color
+        skinMaterial.diffuse.contents = UIColor(skinTone.color)
         skinMaterial.roughness.contents = 0.8
         skinMaterial.lightingModel = .physicallyBased
         
@@ -440,10 +448,17 @@ class Custom3DAvatarBuilder {
     private static func buildLeg(isLeft: Bool, skinTone: SkinTone, outfit: Outfit) -> SCNNode {
         let legNode = SCNNode()
         
-        let pantsColor = outfit.bottom?.color.color ?? skinTone.color
+        // Get pants color, default to nice jeans blue if no outfit
+        let pantsColor: Color
+        if let bottom = outfit.bottom {
+            pantsColor = bottom.color.color
+        } else {
+            pantsColor = Color(red: 0.3, green: 0.4, blue: 0.6)  // Jeans blue
+        }
+        
         let legMaterial = SCNMaterial()
-        legMaterial.diffuse.contents = pantsColor
-        legMaterial.roughness.contents = 0.7
+        legMaterial.diffuse.contents = UIColor(pantsColor)
+        legMaterial.roughness.contents = 0.8
         legMaterial.lightingModel = .physicallyBased
         
         // Upper leg (thigh) - muscular capsule shape
@@ -476,7 +491,7 @@ class Custom3DAvatarBuilder {
         let ankleGeometry = SCNSphere(radius: 0.042)
         ankleGeometry.segmentCount = 20
         let skinMaterial = SCNMaterial()
-        skinMaterial.diffuse.contents = skinTone.color
+        skinMaterial.diffuse.contents = UIColor(skinTone.color)
         skinMaterial.lightingModel = .physicallyBased
         ankleGeometry.materials = [skinMaterial]
         let ankleNode = SCNNode(geometry: ankleGeometry)
@@ -489,7 +504,7 @@ class Custom3DAvatarBuilder {
     // MARK: - Add Clothing
     private static func addShoes(to avatarNode: SCNNode, item: ClothingItem, leftLegPos: SCNVector3, rightLegPos: SCNVector3) {
         let shoeMaterial = SCNMaterial()
-        shoeMaterial.diffuse.contents = item.color.color
+        shoeMaterial.diffuse.contents = UIColor(item.color.color)
         shoeMaterial.roughness.contents = 0.6
         shoeMaterial.metalness.contents = 0.05
         shoeMaterial.lightingModel = .physicallyBased
@@ -535,7 +550,7 @@ class Custom3DAvatarBuilder {
     
     private static func addOuterwear(to avatarNode: SCNNode, item: ClothingItem, torsoPos: SCNVector3) {
         let fabricMaterial = SCNMaterial()
-        fabricMaterial.diffuse.contents = item.color.color
+        fabricMaterial.diffuse.contents = UIColor(item.color.color)
         fabricMaterial.roughness.contents = 0.85
         fabricMaterial.metalness.contents = 0.0
         fabricMaterial.transparency = 0.95
