@@ -1,0 +1,19 @@
+{
+  "": {
+    "swift-dependencies": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/master.swiftdeps"
+  },
+  "/Users/benh/Documents/IOS_Student_Haven/IOS_Studeent_Haven/Models/AvatarModels.swift": {
+    "dependencies": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarModels.d",
+    "object": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarModels.swift.o",
+    "swiftmodule": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarModels~partial.swiftmodule",
+    "swift-dependencies": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarModels.swiftdeps",
+    "diagnostics": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarModels.dia"
+  },
+  "/Users/benh/Documents/IOS_Student_Haven/IOS_Studeent_Haven/ViewModels/AvatarViewModel.swift": {
+    "dependencies": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarViewModel.d",
+    "object": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarViewModel.swift.o",
+    "swiftmodule": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarViewModel.swiftdeps",
+    "diagnostics": "/Users/benh/Documents/IOS_Student_Haven/.build/arm64-apple-macosx/debug/IOS_Student_Haven.build/AvatarViewModel.dia"
+  }
+}

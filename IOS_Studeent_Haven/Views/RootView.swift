@@ -79,6 +79,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Study Groups", systemImage: "person.3.fill")
                 }
+            
+            MyAvatarView()
+                .tabItem {
+                    Label("Avatar", systemImage: "person.crop.circle.fill")
+                }
 
             NotesTab()
                 .tabItem {

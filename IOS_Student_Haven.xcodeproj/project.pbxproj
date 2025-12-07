@@ -14,11 +14,27 @@
 		367877012ED77FB900ABD929 /* Notes in Frameworks */ = {isa = PBXBuildFile; productRef = 367877002ED77FB900ABD929 /* Notes */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		366F260E2EE5DBE600D94067 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36D8B87E2ED76FE0009B2305 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 36D8B8852ED76FE0009B2305;
+			remoteInfo = IOS_Student_Haven;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		366F260A2EE5DBE600D94067 /* IOS_Student_HavenTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IOS_Student_HavenTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		36D8B8862ED76FE0009B2305 /* IOS_Student_Haven.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IOS_Student_Haven.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		366F260B2EE5DBE600D94067 /* IOS_Student_HavenTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = IOS_Student_HavenTests;
+			sourceTree = "<group>";
+		};
 		36D8B8882ED76FE0009B2305 /* IOS_Studeent_Haven */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = IOS_Studeent_Haven;
@@ -27,6 +43,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		366F26072EE5DBE600D94067 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		36D8B8832ED76FE0009B2305 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,6 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				36D8B8882ED76FE0009B2305 /* IOS_Studeent_Haven */,
+				366F260B2EE5DBE600D94067 /* IOS_Student_HavenTests */,
 				367876F72ED77FA400ABD929 /* Frameworks */,
 				36D8B8872ED76FE0009B2305 /* Products */,
 			);
@@ -62,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				36D8B8862ED76FE0009B2305 /* IOS_Student_Haven.app */,
+				366F260A2EE5DBE600D94067 /* IOS_Student_HavenTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,6 +94,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		366F26092EE5DBE600D94067 /* IOS_Student_HavenTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 366F26102EE5DBE600D94067 /* Build configuration list for PBXNativeTarget "IOS_Student_HavenTests" */;
+			buildPhases = (
+				366F26062EE5DBE600D94067 /* Sources */,
+				366F26072EE5DBE600D94067 /* Frameworks */,
+				366F26082EE5DBE600D94067 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				366F260F2EE5DBE600D94067 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				366F260B2EE5DBE600D94067 /* IOS_Student_HavenTests */,
+			);
+			name = IOS_Student_HavenTests;
+			packageProductDependencies = (
+			);
+			productName = IOS_Student_HavenTests;
+			productReference = 366F260A2EE5DBE600D94067 /* IOS_Student_HavenTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		36D8B8852ED76FE0009B2305 /* IOS_Student_Haven */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 36D8B8912ED76FE0009B2305 /* Build configuration list for PBXNativeTarget "IOS_Student_Haven" */;
@@ -103,9 +151,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					366F26092EE5DBE600D94067 = {
+						CreatedOnToolsVersion = 26.1.1;
+						TestTargetID = 36D8B8852ED76FE0009B2305;
+					};
 					36D8B8852ED76FE0009B2305 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -129,11 +181,19 @@
 			projectRoot = "";
 			targets = (
 				36D8B8852ED76FE0009B2305 /* IOS_Student_Haven */,
+				366F26092EE5DBE600D94067 /* IOS_Student_HavenTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		366F26082EE5DBE600D94067 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		36D8B8842ED76FE0009B2305 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -144,6 +204,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		366F26062EE5DBE600D94067 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		36D8B8822ED76FE0009B2305 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -153,7 +220,63 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		366F260F2EE5DBE600D94067 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 36D8B8852ED76FE0009B2305 /* IOS_Student_Haven */;
+			targetProxy = 366F260E2EE5DBE600D94067 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		366F26112EE5DBE600D94067 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PL58734CZ4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Student Haven needs camera access to scan your face and create a realistic 3D avatar using Apple Vision AI.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Student Haven needs photo library access to select a photo for creating your 3D avatar.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Ben.IOS-Student-HavenTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IOS_Student_Haven.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IOS_Student_Haven";
+			};
+			name = Debug;
+		};
+		366F26122EE5DBE600D94067 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PL58734CZ4;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Student Haven needs camera access to scan your face and create a realistic 3D avatar using Apple Vision AI.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Student Haven needs photo library access to select a photo for creating your 3D avatar.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Ben.IOS-Student-HavenTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/IOS_Student_Haven.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/IOS_Student_Haven";
+			};
+			name = Release;
+		};
 		36D8B88F2ED76FE0009B2305 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -278,25 +401,27 @@
 		36D8B8922ED76FE0009B2305 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-		ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-			ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-			CODE_SIGN_STYLE = Automatic;
-			CURRENT_PROJECT_VERSION = 2;
-			DEVELOPMENT_TEAM = PL58734CZ4;
-			ENABLE_PREVIEWS = YES;
-			GENERATE_INFOPLIST_FILE = YES;
-			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-			INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-			INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-			INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-			INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-			LD_RUNPATH_SEARCH_PATHS = (
-				"$(inherited)",
-			"@executable_path/Frameworks",
-			);
-			MARKETING_VERSION = 1.1;
-			PRODUCT_BUNDLE_IDENTIFIER = com.bholsinger.studentstudyhaven;
-			PRODUCT_NAME = "$(TARGET_NAME)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = PL58734CZ4;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Student Haven needs camera access to scan your face and create a realistic 3D avatar using Apple Vision AI.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Student Haven needs photo library access to select a photo for creating your 3D avatar.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bholsinger.studentstudyhaven;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -313,6 +438,8 @@
 				DEVELOPMENT_TEAM = PL58734CZ4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Student Haven needs camera access to scan your face and create a realistic 3D avatar using Apple Vision AI.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Student Haven needs photo library access to select a photo for creating your 3D avatar.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -334,6 +461,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		366F26102EE5DBE600D94067 /* Build configuration list for PBXNativeTarget "IOS_Student_HavenTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				366F26112EE5DBE600D94067 /* Debug */,
+				366F26122EE5DBE600D94067 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		36D8B8812ED76FE0009B2305 /* Build configuration list for PBXProject "IOS_Student_Haven" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
