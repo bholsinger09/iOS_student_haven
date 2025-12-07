@@ -72,89 +72,146 @@ class Custom3DAvatarBuilder {
     private static func buildHead(appearance: Appearance, proportions: BodyProportions) -> SCNNode {
         let headNode = SCNNode()
         
-        // Create realistic head with sphere base for natural roundness
-        let headGeometry = SCNSphere(radius: 0.11)
-        headGeometry.segmentCount = 64  // High segment count for smoothness
+        // Main cranium - larger for realistic proportions
+        let craniumGeometry = SCNSphere(radius: 0.12)
+        craniumGeometry.segmentCount = 80  // Very high for smoothness
         
-        // Realistic skin material with subtle texture
-        let headMaterial = SCNMaterial()
-        headMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
-        headMaterial.specular.contents = UIColor.white.withAlphaComponent(0.08)
-        headMaterial.shininess = 0.03
-        headMaterial.roughness.contents = 0.75
-        headMaterial.lightingModel = .physicallyBased
-        headMaterial.normal.intensity = 0.3  // Subtle skin texture
-        headGeometry.materials = [headMaterial]
+        // Advanced skin material
+        let skinMaterial = SCNMaterial()
+        skinMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
+        skinMaterial.specular.contents = UIColor.white.withAlphaComponent(0.05)
+        skinMaterial.shininess = 0.02
+        skinMaterial.roughness.contents = 0.7
+        skinMaterial.metalness.contents = 0.0
+        skinMaterial.lightingModel = .physicallyBased
+        skinMaterial.normal.intensity = 0.2
+        // Add ambient occlusion for depth
+        skinMaterial.ambientOcclusion.contents = UIColor.darkGray.withAlphaComponent(0.3)
+        skinMaterial.ambientOcclusion.intensity = 0.5
+        craniumGeometry.materials = [skinMaterial]
         
-        let faceNode = SCNNode(geometry: headGeometry)
-        // Scale to create oval face shape (narrower on sides, slightly elongated)
-        faceNode.scale = SCNVector3(0.85, 1.0, 0.9)
-        headNode.addChildNode(faceNode)
+        let craniumNode = SCNNode(geometry: craniumGeometry)
+        craniumNode.scale = SCNVector3(0.92, 1.0, 0.95)  // Realistic head shape
+        headNode.addChildNode(craniumNode)
         
-        // Add subtle cheekbones
-        let cheekLeft = SCNNode(geometry: SCNSphere(radius: 0.025))
-        cheekLeft.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
-        cheekLeft.geometry?.firstMaterial?.lightingModel = .physicallyBased
-        cheekLeft.position = SCNVector3(-0.06, -0.02, 0.08)
-        cheekLeft.opacity = 0.7
-        headNode.addChildNode(cheekLeft)
+        // Forehead definition
+        let foreheadGeometry = SCNSphere(radius: 0.08)
+        foreheadGeometry.segmentCount = 48
+        foreheadGeometry.materials = [skinMaterial]
+        let foreheadNode = SCNNode(geometry: foreheadGeometry)
+        foreheadNode.scale = SCNVector3(1.0, 0.6, 0.7)
+        foreheadNode.position = SCNVector3(0, 0.05, 0.08)
+        headNode.addChildNode(foreheadNode)
         
-        let cheekRight = SCNNode(geometry: SCNSphere(radius: 0.025))
-        cheekRight.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
-        cheekRight.geometry?.firstMaterial?.lightingModel = .physicallyBased
-        cheekRight.position = SCNVector3(0.06, -0.02, 0.08)
-        cheekRight.opacity = 0.7
-        headNode.addChildNode(cheekRight)
+        // Upper face
+        let upperFaceGeometry = SCNSphere(radius: 0.09)
+        upperFaceGeometry.segmentCount = 60
+        upperFaceGeometry.materials = [skinMaterial]
+        let upperFaceNode = SCNNode(geometry: upperFaceGeometry)
+        upperFaceNode.scale = SCNVector3(0.85, 0.65, 0.95)
+        upperFaceNode.position = SCNVector3(0, 0, 0.075)
+        headNode.addChildNode(upperFaceNode)
         
-        // Jawline for definition
-        let jawGeometry = SCNBox(width: 0.12, height: 0.06, length: 0.08, chamferRadius: 0.03)
+        // Cheekbones with better definition
+        for xPos: Float in [-0.065, 0.065] {
+            let cheekGeometry = SCNSphere(radius: 0.035)
+            cheekGeometry.segmentCount = 32
+            cheekGeometry.materials = [skinMaterial]
+            let cheekNode = SCNNode(geometry: cheekGeometry)
+            cheekNode.scale = SCNVector3(0.8, 0.9, 1.1)
+            cheekNode.position = SCNVector3(xPos, -0.015, 0.085)
+            headNode.addChildNode(cheekNode)
+        }
+        
+        // Lower face/jaw structure
+        let jawGeometry = SCNSphere(radius: 0.08)
+        jawGeometry.segmentCount = 48
+        jawGeometry.materials = [skinMaterial]
         let jawNode = SCNNode(geometry: jawGeometry)
-        jawNode.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
-        jawNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
-        jawNode.position = SCNVector3(0, -0.10, 0.04)
+        jawNode.scale = SCNVector3(0.75, 0.8, 0.85)
+        jawNode.position = SCNVector3(0, -0.08, 0.06)
         headNode.addChildNode(jawNode)
         
-        // Add neck
-        let neckGeometry = SCNCylinder(radius: 0.05, height: 0.10)
-        neckGeometry.radialSegmentCount = 24
-        let neckMaterial = SCNMaterial()
-        neckMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
-        neckMaterial.lightingModel = .physicallyBased
-        neckGeometry.materials = [neckMaterial]
+        // Chin definition
+        let chinGeometry = SCNSphere(radius: 0.035)
+        chinGeometry.segmentCount = 32
+        chinGeometry.materials = [skinMaterial]
+        let chinNode = SCNNode(geometry: chinGeometry)
+        chinNode.scale = SCNVector3(0.8, 0.7, 1.0)
+        chinNode.position = SCNVector3(0, -0.11, 0.065)
+        headNode.addChildNode(chinNode)
+        
+        // Neck - realistic taper
+        let neckGeometry = SCNSphere(radius: 0.055)
+        neckGeometry.segmentCount = 36
+        neckGeometry.materials = [skinMaterial]
         let neckNode = SCNNode(geometry: neckGeometry)
-        neckNode.position = SCNVector3(0, -0.15, 0)
+        neckNode.scale = SCNVector3(0.85, 1.0, 0.85)
+        neckNode.position = SCNVector3(0, -0.14, 0.01)
         headNode.addChildNode(neckNode)
         
-        // Realistic eyes
+        // Throat
+        let throatGeometry = SCNSphere(radius: 0.045)
+        throatGeometry.segmentCount = 28
+        throatGeometry.materials = [skinMaterial]
+        let throatNode = SCNNode(geometry: throatGeometry)
+        throatNode.scale = SCNVector3(0.75, 0.6, 0.75)
+        throatNode.position = SCNVector3(0, -0.16, 0.03)
+        headNode.addChildNode(throatNode)
+        
+        // Realistic eyes with better positioning
         let leftEye = buildRealisticEye(appearance: appearance)
         let rightEye = buildRealisticEye(appearance: appearance)
-        leftEye.position = SCNVector3(-0.04, 0.03, 0.08)
-        rightEye.position = SCNVector3(0.04, 0.03, 0.08)
+        leftEye.position = SCNVector3(-0.042, 0.025, 0.095)
+        rightEye.position = SCNVector3(0.042, 0.025, 0.095)
+        leftEye.scale = SCNVector3(1.1, 1.1, 1.1)  // Slightly larger
+        rightEye.scale = SCNVector3(1.1, 1.1, 1.1)
         headNode.addChildNode(leftEye)
         headNode.addChildNode(rightEye)
         
-        // Eyebrows
+        // Eyebrows - more prominent
         let leftBrow = buildEyebrow(hairColor: appearance.hairColor)
         let rightBrow = buildEyebrow(hairColor: appearance.hairColor)
-        leftBrow.position = SCNVector3(-0.04, 0.06, 0.08)
-        rightBrow.position = SCNVector3(0.04, 0.06, 0.08)
+        leftBrow.position = SCNVector3(-0.045, 0.055, 0.095)
+        rightBrow.position = SCNVector3(0.045, 0.055, 0.095)
+        leftBrow.scale = SCNVector3(1.2, 1.0, 1.0)
+        rightBrow.scale = SCNVector3(1.2, 1.0, 1.0)
         headNode.addChildNode(leftBrow)
         headNode.addChildNode(rightBrow)
         
-        // Nose with realistic shape
-        let noseGeometry = SCNCapsule(capRadius: 0.012, height: 0.035)
-        noseGeometry.radialSegmentCount = 16
-        let noseMaterial = SCNMaterial()
-        noseMaterial.diffuse.contents = UIColor(appearance.skinTone.color).withAlphaComponent(0.95)
-        noseMaterial.lightingModel = .physicallyBased
-        noseGeometry.materials = [noseMaterial]
-        let noseNode = SCNNode(geometry: noseGeometry)
-        noseNode.position = SCNVector3(0, -0.01, 0.09)
-        headNode.addChildNode(noseNode)
+        // Nose bridge
+        let noseBridgeGeometry = SCNBox(width: 0.018, height: 0.045, length: 0.025, chamferRadius: 0.008)
+        noseBridgeGeometry.materials = [skinMaterial]
+        let noseBridgeNode = SCNNode(geometry: noseBridgeGeometry)
+        noseBridgeNode.position = SCNVector3(0, 0.005, 0.10)
+        headNode.addChildNode(noseBridgeNode)
         
-        // Mouth
+        // Nose tip
+        let noseTipGeometry = SCNSphere(radius: 0.020)
+        noseTipGeometry.segmentCount = 24
+        noseTipGeometry.materials = [skinMaterial]
+        let noseTipNode = SCNNode(geometry: noseTipGeometry)
+        noseTipNode.scale = SCNVector3(0.8, 0.85, 1.0)
+        noseTipNode.position = SCNVector3(0, -0.020, 0.105)
+        headNode.addChildNode(noseTipNode)
+        
+        // Nostrils
+        for xPos: Float in [-0.012, 0.012] {
+            let nostrilGeometry = SCNSphere(radius: 0.008)
+            nostrilGeometry.segmentCount = 16
+            let nostrilMaterial = SCNMaterial()
+            nostrilMaterial.diffuse.contents = UIColor.black.withAlphaComponent(0.6)
+            nostrilGeometry.materials = [nostrilMaterial]
+            let nostrilNode = SCNNode(geometry: nostrilGeometry)
+            nostrilNode.scale = SCNVector3(1.0, 0.6, 0.8)
+            nostrilNode.position = SCNVector3(xPos, -0.025, 0.102)
+            headNode.addChildNode(nostrilNode)
+        }
+        
+        // Mouth area
         let mouth = buildMouth(skinTone: appearance.skinTone)
-        mouth.position = SCNVector3(0, -0.05, 0.08)
+        mouth.position = SCNVector3(0, -0.055, 0.092)
+        mouth.scale = SCNVector3(1.15, 1.0, 1.0)
         headNode.addChildNode(mouth)
         
         // Ears
@@ -165,10 +222,11 @@ class Custom3DAvatarBuilder {
         headNode.addChildNode(leftEar)
         headNode.addChildNode(rightEar)
         
-        // Hair
+        // Hair - larger and better positioned
         if appearance.hairStyle != .bald {
             let hair = buildHair(style: appearance.hairStyle, color: appearance.hairColor)
-            hair.position = SCNVector3(0, 0.08, 0)
+            hair.position = SCNVector3(0, 0.065, -0.015)
+            hair.scale = SCNVector3(1.15, 1.1, 1.15)  // Fuller hair
             headNode.addChildNode(hair)
         }
         

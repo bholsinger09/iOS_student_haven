@@ -28,6 +28,11 @@ struct AvatarCreatorView: View {
     @State private var capturedARGeometry: ARFaceGeometry?
     @State private var capturedARPhoto: UIImage?
     
+    // Pre-made asset library
+    @State private var usePreMadeAsset = false
+    @State private var showAssetPicker = false
+    @State private var selectedAsset: AvatarAsset?
+    
     let steps = ["Basic Info", "Face", "Hair", "Body"]
     
     // Check if device supports TrueDepth
@@ -220,6 +225,12 @@ struct AvatarCreatorView: View {
                     )
                 }
             }
+            .sheet(isPresented: $showAssetPicker) {
+                AvatarAssetPickerView(
+                    selectedAsset: $selectedAsset,
+                    filterGender: selectedGender
+                )
+            }
         }
     }
     
@@ -236,14 +247,62 @@ struct AvatarCreatorView: View {
                     .font(.headline)
                 
                 VStack(spacing: 12) {
+                    // Pre-made Assets - BEST OPTION
+                    Button(action: {
+                        usePreMadeAsset = true
+                        useFaceScan = false
+                        useTrueDepth = false
+                        showAssetPicker = true
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "person.3.sequence.fill")
+                                .font(.title2)
+                                .frame(width: 40)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 6) {
+                                    Text("Choose Pre-made Avatar")
+                                        .font(.headline)
+                                    Image(systemName: "star.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.yellow)
+                                    Text("BEST")
+                                        .font(.caption2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.yellow)
+                                }
+                                Text("Professional 3D models - photorealistic quality")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            if usePreMadeAsset && selectedAsset != nil {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(usePreMadeAsset ? Color.green : Color.gray.opacity(0.3), lineWidth: 2)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(usePreMadeAsset ? Color.green.opacity(0.05) : Color.clear)
+                                )
+                        )
+                        .foregroundColor(.primary)
+                    }
+                    
                     // Custom procedural avatar
                     Button(action: {
+                        usePreMadeAsset = false
                         useFaceScan = false
                         useTrueDepth = false
                         capturedPhoto = nil
                         faceAnalysis = nil
                         capturedARGeometry = nil
                         capturedARPhoto = nil
+                        selectedAsset = nil
                     }) {
                         HStack(spacing: 12) {
                             Image(systemName: "person.fill")
@@ -257,7 +316,7 @@ struct AvatarCreatorView: View {
                                     .foregroundColor(.secondary)
                             }
                             Spacer()
-                            if !useFaceScan && !useTrueDepth {
+                            if !useFaceScan && !useTrueDepth && !usePreMadeAsset {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.blue)
                             }
@@ -266,7 +325,7 @@ struct AvatarCreatorView: View {
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(!useFaceScan && !useTrueDepth ? Color.blue : Color.gray.opacity(0.3), lineWidth: 2)
+                                .stroke(!useFaceScan && !useTrueDepth && !usePreMadeAsset ? Color.blue : Color.gray.opacity(0.3), lineWidth: 2)
                         )
                         .foregroundColor(.primary)
                     }
@@ -274,8 +333,10 @@ struct AvatarCreatorView: View {
                     // TrueDepth ARKit (iPhone X+)
                     if supportsTrueDepth {
                         Button(action: {
+                            usePreMadeAsset = false
                             useFaceScan = true
                             useTrueDepth = true
+                            selectedAsset = nil
                             showARScanner = true
                         }) {
                             HStack(spacing: 12) {
@@ -312,8 +373,10 @@ struct AvatarCreatorView: View {
                     
                     // Vision framework scan (fallback)
                     Button(action: {
+                        usePreMadeAsset = false
                         useFaceScan = true
                         useTrueDepth = false
+                        selectedAsset = nil
                         showFaceCapture = true
                     }) {
                         HStack(spacing: 12) {
@@ -370,6 +433,23 @@ struct AvatarCreatorView: View {
                         Spacer()
                         Button("Rescan") {
                             showFaceCapture = true
+                        }
+                        .font(.subheadline)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.green.opacity(0.1))
+                    )
+                } else if usePreMadeAsset, let asset = selectedAsset {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Selected: \(asset.name)")
+                            .font(.subheadline)
+                        Spacer()
+                        Button("Change") {
+                            showAssetPicker = true
                         }
                         .font(.subheadline)
                     }
@@ -601,8 +681,24 @@ struct AvatarCreatorView: View {
             appearance: appearance
         )
         
-        // Add ARKit TrueDepth scan data if available (highest priority)
-        if useTrueDepth, let geometry = capturedARGeometry {
+        // Highest priority: Pre-made asset library model
+        if usePreMadeAsset, let asset = selectedAsset {
+            newAvatar.selectedAssetId = asset.id
+            
+            // Use asset's default values for appearance if not customized
+            if appearance.skinTone == Appearance().skinTone {
+                appearance.skinTone = asset.defaultSkinTone
+            }
+            if appearance.hairColor == Appearance().hairColor {
+                appearance.hairColor = asset.defaultHairColor
+            }
+            if appearance.hairStyle == Appearance().hairStyle {
+                appearance.hairStyle = asset.defaultHairStyle
+            }
+            newAvatar.appearance = appearance
+        }
+        // Second priority: ARKit TrueDepth scan data
+        else if useTrueDepth, let geometry = capturedARGeometry {
             if #available(iOS 13.0, *) {
                 // Serialize ARFaceGeometry
                 if let serialized = TrueDepthFaceMeshBuilder.shared.serializeFaceGeometry(geometry) {
@@ -613,12 +709,13 @@ struct AvatarCreatorView: View {
                 newAvatar.arFacePhotoData = arPhoto.jpegData(compressionQuality: 0.9)
             }
         }
-        // Fall back to Vision framework scan if no ARKit data
+        // Third priority: Vision framework scan
         else if useFaceScan, !useTrueDepth, let photo = capturedPhoto, let analysis = faceAnalysis {
             newAvatar.facePhotoData = photo.jpegData(compressionQuality: 0.8)
             // Note: FaceAnalysis encoding would require Codable conformance
             // For now, we'll regenerate from photo when rendering
         }
+        // Final fallback: Procedural generation uses appearance properties set above
         
         viewModel.updateAvatar(newAvatar)
         dismiss()

@@ -56,18 +56,53 @@ struct AvatarRenderer3D: UIViewRepresentable {
     // MARK: - Avatar Loading
     
     private func loadAvatar(into scene: SCNScene, context: Context) {
-        // Priority 1: ARKit TrueDepth scan (highest quality)
-        if #available(iOS 13.0, *), avatar.hasTrueDepthScan {
+        // Priority 1: Pre-made asset library model (best quality)
+        if avatar.hasAssetSelected {
+            loadAssetAvatar(into: scene, context: context)
+        }
+        // Priority 2: ARKit TrueDepth scan
+        else if #available(iOS 13.0, *), avatar.hasTrueDepthScan {
             loadTrueDepthAvatar(into: scene, context: context)
         }
-        // Priority 2: Vision framework scan
+        // Priority 3: Vision framework scan
         else if avatar.hasVisionScan, let photoData = avatar.facePhotoData, let photo = UIImage(data: photoData) {
             loadVisionAvatar(into: scene, photo: photo, context: context)
         }
-        // Priority 3: Procedural avatar
+        // Priority 4: Procedural avatar (fallback)
         else {
             loadProceduralAvatar(into: scene, context: context)
         }
+    }
+    
+    // MARK: - Asset Library
+    
+    private func loadAssetAvatar(into scene: SCNScene, context: Context) {
+        guard let assetId = avatar.selectedAssetId,
+              let asset = AvatarAsset.byId(assetId) else {
+            print("Asset not found, falling back to procedural")
+            loadProceduralAvatar(into: scene, context: context)
+            return
+        }
+        
+        let loader = AvatarAssetLoader.shared
+        
+        // Load the 3D model
+        guard let avatarNode = loader.loadModel(for: asset) else {
+            print("Failed to load asset model, falling back to procedural")
+            loadProceduralAvatar(into: scene, context: context)
+            return
+        }
+        
+        // Apply customizations (skin tone, hair color, outfit)
+        loader.applyCustomizations(
+            to: avatarNode,
+            skinTone: avatar.appearance.skinTone,
+            hairColor: avatar.appearance.hairColor,
+            outfit: avatar.currentOutfit
+        )
+        
+        avatarNode.name = "asset_avatar"
+        scene.rootNode.addChildNode(avatarNode)
     }
     
     @available(iOS 13.0, *)
@@ -131,29 +166,51 @@ struct AvatarRenderer3D: UIViewRepresentable {
     }
     
     private func setupLighting(scene: SCNScene) {
-        // Ambient light
-        let ambientLight = SCNNode()
-        ambientLight.light = SCNLight()
-        ambientLight.light?.type = .ambient
-        ambientLight.light?.color = UIColor(white: 0.6, alpha: 1.0)
-        scene.rootNode.addChildNode(ambientLight)
+        // Key light (main light from front-top) - simulates sun/studio lighting
+        let keyLight = SCNNode()
+        keyLight.light = SCNLight()
+        keyLight.light?.type = .directional
+        keyLight.light?.color = UIColor(white: 1.0, alpha: 1.0)
+        keyLight.light?.intensity = 1200
+        keyLight.light?.castsShadow = true
+        keyLight.light?.shadowMode = .deferred
+        keyLight.light?.shadowColor = UIColor.black.withAlphaComponent(0.4)
+        keyLight.position = SCNVector3(x: 2, y: 4, z: 3)
+        keyLight.look(at: SCNVector3(x: 0, y: 0.2, z: 0))
+        scene.rootNode.addChildNode(keyLight)
         
-        // Directional light
-        let directionalLight = SCNNode()
-        directionalLight.light = SCNLight()
-        directionalLight.light?.type = .directional
-        directionalLight.light?.color = UIColor.white
-        directionalLight.position = SCNVector3(x: 0, y: 5, z: 5)
-        directionalLight.look(at: SCNVector3(x: 0, y: 0, z: 0))
-        scene.rootNode.addChildNode(directionalLight)
-        
-        // Fill light
+        // Fill light (softer, opposite side) - reduces harsh shadows
         let fillLight = SCNNode()
         fillLight.light = SCNLight()
         fillLight.light?.type = .omni
-        fillLight.light?.color = UIColor(white: 0.4, alpha: 1.0)
-        fillLight.position = SCNVector3(x: -2, y: 0, z: 1)
+        fillLight.light?.color = UIColor(red: 0.95, green: 0.95, blue: 1.0, alpha: 1.0)  // Slightly cool
+        fillLight.light?.intensity = 500
+        fillLight.position = SCNVector3(x: -2.5, y: 1, z: 2)
         scene.rootNode.addChildNode(fillLight)
+        
+        // Back light (rim lighting) - creates depth
+        let backLight = SCNNode()
+        backLight.light = SCNLight()
+        backLight.light?.type = .spot
+        backLight.light?.color = UIColor(red: 1.0, green: 0.98, blue: 0.95, alpha: 1.0)  // Warm
+        backLight.light?.intensity = 400
+        backLight.light?.spotInnerAngle = 30
+        backLight.light?.spotOuterAngle = 60
+        backLight.position = SCNVector3(x: 0, y: 2, z: -3)
+        backLight.look(at: SCNVector3(x: 0, y: 0.3, z: 0))
+        scene.rootNode.addChildNode(backLight)
+        
+        // Ambient light (soft overall illumination)
+        let ambientLight = SCNNode()
+        ambientLight.light = SCNLight()
+        ambientLight.light?.type = .ambient
+        ambientLight.light?.color = UIColor(white: 0.45, alpha: 1.0)
+        ambientLight.light?.intensity = 250
+        scene.rootNode.addChildNode(ambientLight)
+        
+        // Add HDR environment for realistic reflections
+        scene.lightingEnvironment.contents = UIColor(white: 0.85, alpha: 1.0)
+        scene.lightingEnvironment.intensity = 0.8
     }
     
 
