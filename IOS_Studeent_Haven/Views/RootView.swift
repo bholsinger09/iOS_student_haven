@@ -69,10 +69,20 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Classes", systemImage: "book.fill")
                 }
+            
+            GPATrackerView()
+                .tabItem {
+                    Label("GPA", systemImage: "chart.bar.fill")
+                }
+            
+            StudyGroupFinderView()
+                .tabItem {
+                    Label("Study Groups", systemImage: "person.3.fill")
+                }
 
             NotesTab()
                 .tabItem {
-                    Label("Classroom Notetaking", systemImage: "pencil.and.list.clipboard")
+                    Label("Notes", systemImage: "pencil.and.list.clipboard")
                 }
 
             FlashcardsTab()
