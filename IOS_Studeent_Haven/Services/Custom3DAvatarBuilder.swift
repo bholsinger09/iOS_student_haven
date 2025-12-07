@@ -72,23 +72,47 @@ class Custom3DAvatarBuilder {
     private static func buildHead(appearance: Appearance, proportions: BodyProportions) -> SCNNode {
         let headNode = SCNNode()
         
-        // Create realistic head using capsule for smooth shape
-        let headGeometry = SCNCapsule(capRadius: 0.09, height: 0.20)
-        headGeometry.radialSegmentCount = 36
-        headGeometry.heightSegmentCount = 12
+        // Create realistic head with sphere base for natural roundness
+        let headGeometry = SCNSphere(radius: 0.11)
+        headGeometry.segmentCount = 64  // High segment count for smoothness
         
-        // Realistic skin material
+        // Realistic skin material with subtle texture
         let headMaterial = SCNMaterial()
         headMaterial.diffuse.contents = UIColor(appearance.skinTone.color)
-        headMaterial.specular.contents = UIColor.white.withAlphaComponent(0.1)
-        headMaterial.shininess = 0.05
-        headMaterial.roughness.contents = 0.8
+        headMaterial.specular.contents = UIColor.white.withAlphaComponent(0.08)
+        headMaterial.shininess = 0.03
+        headMaterial.roughness.contents = 0.75
         headMaterial.lightingModel = .physicallyBased
+        headMaterial.normal.intensity = 0.3  // Subtle skin texture
         headGeometry.materials = [headMaterial]
         
         let faceNode = SCNNode(geometry: headGeometry)
-        faceNode.eulerAngles = SCNVector3(Float.pi / 2, 0, 0)
+        // Scale to create oval face shape (narrower on sides, slightly elongated)
+        faceNode.scale = SCNVector3(0.85, 1.0, 0.9)
         headNode.addChildNode(faceNode)
+        
+        // Add subtle cheekbones
+        let cheekLeft = SCNNode(geometry: SCNSphere(radius: 0.025))
+        cheekLeft.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
+        cheekLeft.geometry?.firstMaterial?.lightingModel = .physicallyBased
+        cheekLeft.position = SCNVector3(-0.06, -0.02, 0.08)
+        cheekLeft.opacity = 0.7
+        headNode.addChildNode(cheekLeft)
+        
+        let cheekRight = SCNNode(geometry: SCNSphere(radius: 0.025))
+        cheekRight.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
+        cheekRight.geometry?.firstMaterial?.lightingModel = .physicallyBased
+        cheekRight.position = SCNVector3(0.06, -0.02, 0.08)
+        cheekRight.opacity = 0.7
+        headNode.addChildNode(cheekRight)
+        
+        // Jawline for definition
+        let jawGeometry = SCNBox(width: 0.12, height: 0.06, length: 0.08, chamferRadius: 0.03)
+        let jawNode = SCNNode(geometry: jawGeometry)
+        jawNode.geometry?.firstMaterial?.diffuse.contents = UIColor(appearance.skinTone.color)
+        jawNode.geometry?.firstMaterial?.lightingModel = .physicallyBased
+        jawNode.position = SCNVector3(0, -0.10, 0.04)
+        headNode.addChildNode(jawNode)
         
         // Add neck
         let neckGeometry = SCNCylinder(radius: 0.05, height: 0.10)
@@ -324,13 +348,13 @@ class Custom3DAvatarBuilder {
     private static func buildTorso(appearance: Appearance, bodyType: Float, outfit: Outfit) -> SCNNode {
         let torsoNode = SCNNode()
         
-        // Realistic upper torso (chest) - smooth rounded shape
-        let upperTorsoGeometry = SCNCapsule(
-            capRadius: CGFloat(0.16 * bodyType),
-            height: 0.30
-        )
-        (upperTorsoGeometry as SCNCapsule).radialSegmentCount = 36
-        (upperTorsoGeometry as SCNCapsule).heightSegmentCount = 12
+        // Create realistic chest with proper human proportions
+        // Use sphere scaled to create natural chest shape
+        let chestGeometry = SCNSphere(radius: 0.18)
+        chestGeometry.segmentCount = 48
+        let chestNode = SCNNode(geometry: chestGeometry)
+        chestNode.scale = SCNVector3(bodyType * 0.85, 0.65, 0.55)  // Wide, less tall, less deep
+        chestNode.position = SCNVector3(0, 0.15, 0)
         
         // Get shirt color, default to nice blue if no outfit
         let shirtColor: Color
@@ -344,27 +368,30 @@ class Custom3DAvatarBuilder {
         torsoMaterial.diffuse.contents = UIColor(shirtColor)
         torsoMaterial.roughness.contents = 0.6
         torsoMaterial.lightingModel = .physicallyBased
-        upperTorsoGeometry.materials = [torsoMaterial]
+        chestGeometry.materials = [torsoMaterial]
+        torsoNode.addChildNode(chestNode)
         
-        let upperTorsoNode = SCNNode(geometry: upperTorsoGeometry)
-        upperTorsoNode.position = SCNVector3(0, 0.08, 0)
-        torsoNode.addChildNode(upperTorsoNode)
+        // Waist - tapered for natural body shape
+        let waistGeometry = SCNSphere(radius: 0.15)
+        waistGeometry.segmentCount = 48
+        waistGeometry.materials = [torsoMaterial]
+        let waistNode = SCNNode(geometry: waistGeometry)
+        waistNode.scale = SCNVector3(bodyType * 0.72, 0.45, 0.48)  // Narrower waist
+        waistNode.position = SCNVector3(0, 0.02, 0)
+        torsoNode.addChildNode(waistNode)
         
-        // Lower torso (abdomen) - tapered shape
-        let lowerTorsoGeometry = SCNCapsule(
-            capRadius: CGFloat(0.14 * bodyType),
-            height: 0.22
-        )
-        (lowerTorsoGeometry as SCNCapsule).radialSegmentCount = 36
-        lowerTorsoGeometry.materials = [torsoMaterial]
+        // Lower torso (abdomen/hips)
+        let abdomenGeometry = SCNSphere(radius: 0.16)
+        abdomenGeometry.segmentCount = 48
+        abdomenGeometry.materials = [torsoMaterial]
+        let abdomenNode = SCNNode(geometry: abdomenGeometry)
+        abdomenNode.scale = SCNVector3(bodyType * 0.78, 0.40, 0.50)
+        abdomenNode.position = SCNVector3(0, -0.10, 0)
+        torsoNode.addChildNode(abdomenNode)
         
-        let lowerTorsoNode = SCNNode(geometry: lowerTorsoGeometry)
-        lowerTorsoNode.position = SCNVector3(0, -0.13, 0)
-        torsoNode.addChildNode(lowerTorsoNode)
-        
-        // Shoulders (make them broader and more defined)
-        let shoulderGeometry = SCNSphere(radius: CGFloat(0.08 * bodyType))
-        shoulderGeometry.segmentCount = 24
+        // Realistic shoulders with proper deltoid shape
+        let shoulderGeometry = SCNSphere(radius: 0.09)
+        shoulderGeometry.segmentCount = 40
         let shoulderMaterial = SCNMaterial()
         shoulderMaterial.diffuse.contents = UIColor(shirtColor)
         shoulderMaterial.roughness.contents = 0.6
@@ -372,11 +399,13 @@ class Custom3DAvatarBuilder {
         shoulderGeometry.materials = [shoulderMaterial]
         
         let leftShoulder = SCNNode(geometry: shoulderGeometry)
-        leftShoulder.position = SCNVector3(CGFloat(-0.18 * bodyType), 0.18, 0)
+        leftShoulder.scale = SCNVector3(bodyType * 1.0, 0.7, 0.7)  // Oval deltoid
+        leftShoulder.position = SCNVector3(CGFloat(-0.20 * bodyType), 0.20, 0)
         torsoNode.addChildNode(leftShoulder)
         
         let rightShoulder = SCNNode(geometry: shoulderGeometry)
-        rightShoulder.position = SCNVector3(CGFloat(0.18 * bodyType), 0.18, 0)
+        rightShoulder.scale = SCNVector3(bodyType * 1.0, 0.7, 0.7)
+        rightShoulder.position = SCNVector3(CGFloat(0.20 * bodyType), 0.20, 0)
         torsoNode.addChildNode(rightShoulder)
         
         return torsoNode
@@ -387,58 +416,51 @@ class Custom3DAvatarBuilder {
         
         let skinMaterial = SCNMaterial()
         skinMaterial.diffuse.contents = UIColor(skinTone.color)
-        skinMaterial.roughness.contents = 0.8
+        skinMaterial.roughness.contents = 0.75
         skinMaterial.lightingModel = .physicallyBased
         
-        // Upper arm - tapered capsule for muscle definition
-        let upperArmGeometry = SCNCapsule(
-            capRadius: CGFloat(0.045 * bodyType),
-            height: 0.24
-        )
-        (upperArmGeometry as SCNCapsule).radialSegmentCount = 24
+        // Upper arm with natural bicep/tricep curve
+        let upperArmGeometry = SCNSphere(radius: 0.06)
+        upperArmGeometry.segmentCount = 32
         upperArmGeometry.materials = [skinMaterial]
-        
         let upperArmNode = SCNNode(geometry: upperArmGeometry)
+        upperArmNode.scale = SCNVector3(bodyType * 0.75, 2.0, 0.75)  // Elongated
         upperArmNode.position = SCNVector3(0, -0.12, 0)
         armNode.addChildNode(upperArmNode)
         
-        // Elbow joint
-        let elbowGeometry = SCNSphere(radius: CGFloat(0.04 * bodyType))
-        elbowGeometry.segmentCount = 20
+        // Elbow - smooth transition
+        let elbowGeometry = SCNSphere(radius: 0.042)
+        elbowGeometry.segmentCount = 28
         elbowGeometry.materials = [skinMaterial]
         let elbowNode = SCNNode(geometry: elbowGeometry)
+        elbowNode.scale = SCNVector3(bodyType * 0.85, 0.8, 0.85)
         elbowNode.position = SCNVector3(0, -0.24, 0)
         armNode.addChildNode(elbowNode)
         
-        // Forearm - slightly thinner capsule
-        let forearmGeometry = SCNCapsule(
-            capRadius: CGFloat(0.038 * bodyType),
-            height: 0.24
-        )
-        (forearmGeometry as SCNCapsule).radialSegmentCount = 24
+        // Forearm - natural taper
+        let forearmGeometry = SCNSphere(radius: 0.055)
+        forearmGeometry.segmentCount = 32
         forearmGeometry.materials = [skinMaterial]
-        
         let forearmNode = SCNNode(geometry: forearmGeometry)
+        forearmNode.scale = SCNVector3(bodyType * 0.65, 2.0, 0.65)
         forearmNode.position = SCNVector3(0, -0.36, 0)
         armNode.addChildNode(forearmNode)
         
-        // Wrist
-        let wristGeometry = SCNSphere(radius: CGFloat(0.032 * bodyType))
-        wristGeometry.segmentCount = 20
+        // Wrist - slim transition
+        let wristGeometry = SCNSphere(radius: 0.035)
+        wristGeometry.segmentCount = 24
         wristGeometry.materials = [skinMaterial]
         let wristNode = SCNNode(geometry: wristGeometry)
+        wristNode.scale = SCNVector3(bodyType * 0.8, 0.6, 0.8)
         wristNode.position = SCNVector3(0, -0.48, 0)
         armNode.addChildNode(wristNode)
         
-        // Hand - more detailed
-        let handGeometry = SCNBox(
-            width: CGFloat(0.05 * bodyType),
-            height: 0.08,
-            length: 0.02,
-            chamferRadius: 0.01
-        )
+        // Hand - realistic proportions
+        let handGeometry = SCNSphere(radius: 0.045)
+        handGeometry.segmentCount = 28
         handGeometry.materials = [skinMaterial]
         let handNode = SCNNode(geometry: handGeometry)
+        handNode.scale = SCNVector3(bodyType * 0.65, 0.9, 0.4)  // Flat palm shape
         handNode.position = SCNVector3(0, -0.54, 0)
         armNode.addChildNode(handNode)
         
@@ -461,29 +483,32 @@ class Custom3DAvatarBuilder {
         legMaterial.roughness.contents = 0.8
         legMaterial.lightingModel = .physicallyBased
         
-        // Upper leg (thigh) - muscular capsule shape
-        let thighGeometry = SCNCapsule(capRadius: 0.068, height: 0.34)
-        (thighGeometry as SCNCapsule).radialSegmentCount = 28
+        // Upper leg (thigh) - natural muscle shape
+        let thighGeometry = SCNSphere(radius: 0.085)
+        thighGeometry.segmentCount = 36
         thighGeometry.materials = [legMaterial]
         
         let thighNode = SCNNode(geometry: thighGeometry)
+        thighNode.scale = SCNVector3(0.75, 2.0, 0.75)  // Elongated thigh
         thighNode.position = SCNVector3(0, -0.17, 0)
         legNode.addChildNode(thighNode)
         
-        // Knee joint
-        let kneeGeometry = SCNSphere(radius: 0.055)
-        kneeGeometry.segmentCount = 24
+        // Knee joint - natural roundness
+        let kneeGeometry = SCNSphere(radius: 0.058)
+        kneeGeometry.segmentCount = 32
         kneeGeometry.materials = [legMaterial]
         let kneeNode = SCNNode(geometry: kneeGeometry)
+        kneeNode.scale = SCNVector3(0.85, 0.75, 0.85)
         kneeNode.position = SCNVector3(0, -0.34, 0)
         legNode.addChildNode(kneeNode)
         
-        // Lower leg (calf) - tapered shape
-        let calfGeometry = SCNCapsule(capRadius: 0.052, height: 0.34)
-        (calfGeometry as SCNCapsule).radialSegmentCount = 28
+        // Lower leg (calf) - natural taper
+        let calfGeometry = SCNSphere(radius: 0.07)
+        calfGeometry.segmentCount = 36
         calfGeometry.materials = [legMaterial]
         
         let calfNode = SCNNode(geometry: calfGeometry)
+        calfNode.scale = SCNVector3(0.65, 2.2, 0.70)  // Tapered calf
         calfNode.position = SCNVector3(0, -0.51, 0)
         legNode.addChildNode(calfNode)
         
