@@ -15,23 +15,49 @@ class AvatarAssetLoader {
     
     /// Load a 3D model from the app bundle
     func loadModel(for asset: AvatarAsset) -> SCNNode? {
-        guard let modelURL = Bundle.main.url(forResource: asset.modelFileName.replacingOccurrences(of: ".glb", with: ""), 
-                                              withExtension: "glb", 
-                                              subdirectory: "Assets/AvatarModels") else {
-            print("Could not find model file: \(asset.modelFileName)")
+        // Strip .dae extension from filename
+        let baseFileName = asset.modelFileName.replacingOccurrences(of: ".dae", with: "")
+        
+        // Try root of bundle first
+        var modelURL = Bundle.main.url(forResource: baseFileName, withExtension: "dae")
+        
+        // If not found, try in Assets/AvatarModels subdirectory
+        if modelURL == nil {
+            modelURL = Bundle.main.url(forResource: baseFileName, withExtension: "dae", subdirectory: "Assets/AvatarModels")
+        }
+        
+        guard let modelURL = modelURL else {
+            print("❌ Could not find DAE model file: \(asset.modelFileName)")
+            print("   Bundle path: \(Bundle.main.bundlePath)")
             return createPlaceholderAvatar(for: asset)
         }
         
+        print("✅ Loading DAE model from: \(modelURL.path)")
+        
         do {
+            print("🔄 Attempting to load scene from URL: \(modelURL.path)")
+            
             let scene = try SCNScene(url: modelURL, options: [
                 .checkConsistency: true,
                 .flattenScene: false,
                 .createNormalsIfAbsent: true
             ])
             
+            print("✅ Scene loaded successfully")
+            print("   Root node children count: \(scene.rootNode.childNodes.count)")
+            
             let modelNode = SCNNode()
+            modelNode.name = "asset_\(asset.id)"
+            
             for child in scene.rootNode.childNodes {
+                print("   - Child node: \(child.name ?? "unnamed"), geometry: \(child.geometry != nil)")
                 modelNode.addChildNode(child)
+            }
+            
+            if modelNode.childNodes.isEmpty {
+                print("⚠️  No child nodes found in scene, using root node directly")
+                let rootCopy = scene.rootNode.clone()
+                return rootCopy
             }
             
             // Scale to consistent size (avatars should be ~1.7m tall)
@@ -40,10 +66,15 @@ class AvatarAssetLoader {
             // Center at origin
             centerNode(modelNode)
             
+            // Apply colors to materials
+            applyColors(to: modelNode, asset: asset)
+            
+            print("✅ Model loaded and prepared successfully")
             return modelNode
             
         } catch {
-            print("Failed to load GLB model: \(error)")
+            print("❌ Failed to load GLB model: \(error)")
+            print("   Error details: \(error.localizedDescription)")
             return createPlaceholderAvatar(for: asset)
         }
     }
@@ -70,6 +101,86 @@ class AvatarAssetLoader {
         )
         
         node.position = SCNVector3(-center.x, -center.y, -center.z)
+    }
+    
+    /// Apply colors to model materials based on asset properties
+    private func applyColors(to node: SCNNode, asset: AvatarAsset) {
+        // Get base colors
+        let skinColor = asset.defaultSkinTone.uiColor
+        let hairColor = asset.defaultHairColor.uiColor
+        
+        // Define clothing colors based on gender
+        let primaryClothingColor: UIColor
+        let secondaryClothingColor: UIColor
+        
+        switch asset.gender {
+        case .male:
+            primaryClothingColor = UIColor(red: 0.2, green: 0.4, blue: 0.7, alpha: 1.0) // Blue
+            secondaryClothingColor = UIColor(red: 0.3, green: 0.3, blue: 0.35, alpha: 1.0) // Dark gray
+        case .female:
+            primaryClothingColor = UIColor(red: 0.8, green: 0.3, blue: 0.5, alpha: 1.0) // Pink/Magenta
+            secondaryClothingColor = UIColor(red: 0.5, green: 0.2, blue: 0.6, alpha: 1.0) // Purple
+        case .other:
+            primaryClothingColor = UIColor(red: 0.5, green: 0.7, blue: 0.4, alpha: 1.0) // Green
+            secondaryClothingColor = UIColor(red: 0.7, green: 0.5, blue: 0.3, alpha: 1.0) // Orange
+        }
+        
+        // Recursively apply colors to all geometry
+        applyColorsRecursive(node: node, skinColor: skinColor, hairColor: hairColor, 
+                           primaryClothing: primaryClothingColor, 
+                           secondaryClothing: secondaryClothingColor)
+    }
+    
+    /// Recursively apply colors to node materials
+    private func applyColorsRecursive(node: SCNNode, skinColor: UIColor, hairColor: UIColor,
+                                     primaryClothing: UIColor, secondaryClothing: UIColor) {
+        // Apply materials to current node's geometry
+        if let geometry = node.geometry {
+            for material in geometry.materials {
+                // Try to determine material type from name
+                let materialName = material.name?.lowercased() ?? ""
+                
+                if materialName.contains("skin") || materialName.contains("body") || materialName.contains("face") || materialName.contains("hand") {
+                    // Skin material
+                    material.diffuse.contents = skinColor
+                    material.lightingModel = .physicallyBased
+                    material.roughness.contents = 0.8
+                } else if materialName.contains("hair") || materialName.contains("eyebrow") {
+                    // Hair material
+                    material.diffuse.contents = hairColor
+                    material.lightingModel = .physicallyBased
+                    material.roughness.contents = 0.6
+                } else if materialName.contains("shirt") || materialName.contains("top") || materialName.contains("jacket") {
+                    // Upper clothing
+                    material.diffuse.contents = primaryClothing
+                    material.lightingModel = .physicallyBased
+                    material.roughness.contents = 0.7
+                } else if materialName.contains("pant") || materialName.contains("shorts") || materialName.contains("skirt") || materialName.contains("bottom") {
+                    // Lower clothing
+                    material.diffuse.contents = secondaryClothing
+                    material.lightingModel = .physicallyBased
+                    material.roughness.contents = 0.7
+                } else {
+                    // Default: add subtle tinting to keep texture visible
+                    if let currentColor = material.diffuse.contents as? UIColor {
+                        // Keep existing color but ensure it's visible
+                        material.lightingModel = .physicallyBased
+                        material.roughness.contents = 0.7
+                    } else {
+                        // No existing color, apply clothing color
+                        material.diffuse.contents = primaryClothing
+                        material.lightingModel = .physicallyBased
+                        material.roughness.contents = 0.7
+                    }
+                }
+            }
+        }
+        
+        // Recursively process child nodes
+        for child in node.childNodes {
+            applyColorsRecursive(node: child, skinColor: skinColor, hairColor: hairColor,
+                               primaryClothing: primaryClothing, secondaryClothing: secondaryClothing)
+        }
     }
     
     /// Create a placeholder avatar when model file is missing

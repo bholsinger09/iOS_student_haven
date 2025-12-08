@@ -14,6 +14,7 @@ struct RootView: View {
     var body: some View {
         if appState.isAuthenticated {
             MainTabView()
+                .preferredColorScheme(.dark)
                 .sheet(isPresented: $showOnboarding) {
                     OnboardingView()
                 }
@@ -24,6 +25,7 @@ struct RootView: View {
                 }
         } else {
             AuthenticationCoordinator()
+                .preferredColorScheme(.dark)
         }
     }
 }
@@ -57,6 +59,23 @@ struct AuthenticationCoordinator: View {
 /// Main tab view after authentication
 struct MainTabView: View {
     @EnvironmentObject var appState: AppState
+    @Environment(\.colorScheme) var colorScheme
+    
+    init() {
+        // Configure More screen appearance immediately
+        UITabBar.appearance().backgroundColor = .systemBackground
+        
+        // Use introspection to access and style the More navigation controller
+        DispatchQueue.main.async {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                for window in windowScene.windows {
+                    if let tabBarController = window.rootViewController as? UITabBarController {
+                        tabBarController.moreNavigationController.overrideUserInterfaceStyle = .dark
+                    }
+                }
+            }
+        }
+    }
 
     var body: some View {
         TabView {
@@ -99,6 +118,24 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Profile", systemImage: "person.fill")
                 }
+        }
+        .onAppear {
+            // Set tab bar appearance for dark mode support
+            let appearance = UITabBarAppearance()
+            appearance.configureWithDefaultBackground()
+            appearance.backgroundColor = UIColor.systemBackground
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+            
+            // Force dark style for More navigation controller
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let tabBarController = windowScene.windows.first?.rootViewController as? UITabBarController {
+                    let moreNavigationController = tabBarController.moreNavigationController
+                    moreNavigationController.overrideUserInterfaceStyle = .dark
+                    moreNavigationController.navigationBar.overrideUserInterfaceStyle = .dark
+                }
+            }
         }
     }
 }

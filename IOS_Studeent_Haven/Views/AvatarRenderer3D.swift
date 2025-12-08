@@ -11,25 +11,32 @@ import ARKit
 
 struct AvatarRenderer3D: UIViewRepresentable {
     let avatar: Avatar
-    var cameraDistance: Float = 2.0
+    var cameraDistance: Float = 2.5
     var allowsRotation: Bool = true
     
     func makeUIView(context: Context) -> SCNView {
+        print("🎬 AvatarRenderer3D: makeUIView called for avatar: \(avatar.name)")
+        
         let sceneView = SCNView()
-        sceneView.backgroundColor = .clear
+        sceneView.backgroundColor = .systemBackground
         sceneView.allowsCameraControl = allowsRotation
-        sceneView.autoenablesDefaultLighting = false
+        sceneView.autoenablesDefaultLighting = true
         sceneView.antialiasingMode = .multisampling4X
+        
+        // CRITICAL: Set these to ensure rendering
+        sceneView.isUserInteractionEnabled = true
+        sceneView.isHidden = false
+        sceneView.alpha = 1.0
         
         // Create scene
         let scene = SCNScene()
-        sceneView.scene = scene
         
-        // Setup camera
+        // Setup camera FIRST
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
-        cameraNode.position = SCNVector3(x: 0, y: 0.2, z: cameraDistance)
-        cameraNode.look(at: SCNVector3(0, 0.2, 0))
+        cameraNode.camera?.fieldOfView = 60
+        cameraNode.position = SCNVector3(x: 0, y: 0.85, z: 2.5)
+        cameraNode.look(at: SCNVector3(0, 0.85, 0))
         scene.rootNode.addChildNode(cameraNode)
         
         // Setup lighting
@@ -38,19 +45,33 @@ struct AvatarRenderer3D: UIViewRepresentable {
         // Load avatar with priority: TrueDepth → Vision → Procedural
         loadAvatar(into: scene, context: context)
         
+        // CRITICAL: Set scene AFTER everything is loaded
+        sceneView.scene = scene
+        
+        // Force immediate render
+        DispatchQueue.main.async {
+            sceneView.setNeedsDisplay()
+        }
+        
+        print("🎬 AvatarRenderer3D: makeUIView completed, scene has \(scene.rootNode.childNodes.count) nodes")
+        
         return sceneView
     }
     
     func updateUIView(_ uiView: SCNView, context: Context) {
+        print("🔄 AvatarRenderer3D: updateUIView called")
         guard let scene = uiView.scene else { return }
         
-        // Remove existing avatar
+        // Remove existing avatar nodes
         scene.rootNode.childNode(withName: "avatar", recursively: false)?.removeFromParentNode()
+        scene.rootNode.childNode(withName: "asset_avatar", recursively: false)?.removeFromParentNode()
         scene.rootNode.childNode(withName: "truedepth_face", recursively: false)?.removeFromParentNode()
         scene.rootNode.childNode(withName: "vision_face", recursively: false)?.removeFromParentNode()
         
         // Load avatar with priority: TrueDepth → Vision → Procedural
         loadAvatar(into: scene, context: context)
+        
+        print("🔄 AvatarRenderer3D: updateUIView completed, scene has \(scene.rootNode.childNodes.count) nodes")
     }
     
     // MARK: - Avatar Loading
@@ -77,29 +98,26 @@ struct AvatarRenderer3D: UIViewRepresentable {
     // MARK: - Asset Library
     
     private func loadAssetAvatar(into scene: SCNScene, context: Context) {
+        print("🔍 AvatarRenderer3D: Loading asset avatar")
+        print("   Avatar name: \(avatar.name)")
+        print("   Selected asset ID: \(avatar.selectedAssetId ?? "nil")")
+        
         guard let assetId = avatar.selectedAssetId,
               let asset = AvatarAsset.byId(assetId) else {
-            print("Asset not found, falling back to procedural")
+            print("❌ Asset not found, falling back to procedural")
             loadProceduralAvatar(into: scene, context: context)
             return
         }
         
+        print("✅ Found asset: \(asset.name)")
         let loader = AvatarAssetLoader.shared
         
-        // Load the 3D model
+        // Load the 3D model (colors are applied during loading)
         guard let avatarNode = loader.loadModel(for: asset) else {
             print("Failed to load asset model, falling back to procedural")
             loadProceduralAvatar(into: scene, context: context)
             return
         }
-        
-        // Apply customizations (skin tone, hair color, outfit)
-        loader.applyCustomizations(
-            to: avatarNode,
-            skinTone: avatar.appearance.skinTone,
-            hairColor: avatar.appearance.hairColor,
-            outfit: avatar.currentOutfit
-        )
         
         avatarNode.name = "asset_avatar"
         scene.rootNode.addChildNode(avatarNode)
