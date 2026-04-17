@@ -4,11 +4,13 @@ import SwiftUI
 /// Login screen view
 public struct LoginView: View {
     @StateObject private var viewModel: LoginViewModel
+    @StateObject private var appleSignInViewModel: AppleSignInViewModel
     @State private var isPasswordVisible = false
     private let authRepository: any AuthRepositoryProtocol
 
     public init(viewModel: LoginViewModel, authRepository: any AuthRepositoryProtocol) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        _appleSignInViewModel = StateObject(wrappedValue: AppleSignInViewModel(authRepository: authRepository))
         self.authRepository = authRepository
     }
 
@@ -155,6 +157,33 @@ public struct LoginView: View {
                         .buttonStyle(.plain)
                         .disabled(viewModel.isLoading)
                         .padding(.top, 8)
+                        
+                        // Divider with "or" text
+                        HStack(spacing: 12) {
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
+                            Text("or")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 1)
+                        }
+                        .padding(.vertical, 8)
+                        
+                        // Sign in with Apple button
+                        SignInWithAppleButton(viewModel: appleSignInViewModel)
+                            .disabled(appleSignInViewModel.isLoading || viewModel.isLoading)
+                        
+                        // Show Apple Sign In error if any
+                        if let errorMessage = appleSignInViewModel.errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red.opacity(0.8))
+                                .font(.caption)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 4)
+                        }
                     }
                     .padding(.horizontal, 40)
                     .padding(.vertical, 30)
