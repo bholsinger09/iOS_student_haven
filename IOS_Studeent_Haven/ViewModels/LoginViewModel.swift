@@ -30,8 +30,8 @@ public final class LoginViewModel: ObservableObject {
 
             // Notify AppState that user logged in
             NotificationCenter.default.post(
-                name: .userDidLogin,
-                object: session.user
+                name: Notification.Name.userDidLogin,
+                object: session.user as Any
             )
         } catch let error as AppError {
             errorMessage = error.localizedDescription

@@ -6,11 +6,24 @@ public struct User: Equatable, Identifiable {
     public let id: String
     public let email: String
     public let name: String
+    public let collegeId: String?
+    public let createdAt: Date
+    public let updatedAt: Date
     
-    public init(id: String, email: String, name: String) {
+    public init(
+        id: String, 
+        email: String, 
+        name: String, 
+        collegeId: String? = nil,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
+    ) {
         self.id = id
         self.email = email
         self.name = name
+        self.collegeId = collegeId
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }
 

@@ -434,8 +434,3 @@ struct ProfileTab: View {
         ProfileView(viewModel: ProfileViewModel(appState: appState))
     }
 }
-
-// Notification names
-extension Notification.Name {
-    static let userDidLogin = Notification.Name("userDidLogin")
-}

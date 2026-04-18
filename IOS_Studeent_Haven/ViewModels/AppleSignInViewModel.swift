@@ -59,8 +59,8 @@ public final class AppleSignInViewModel: ObservableObject {
             
             // Notify AppState that user logged in via Apple
             NotificationCenter.default.post(
-                name: .userDidLogin,
-                object: user
+                name: Notification.Name.userDidLogin,
+                object: user as Any
             )
             
         } catch {
