@@ -366,7 +366,7 @@ struct GroupSessionsView: View {
 // MARK: - Session Card
 struct SessionCard: View {
     let session: StudySession
-    let groupId: UUID
+    let groupId: String
     @ObservedObject var viewModel: StudyGroupViewModel
     
     var body: some View {

@@ -10,7 +10,7 @@ import CoreLocation
 
 // MARK: - Study Group
 struct StudyGroup: Identifiable, Codable {
-    let id: UUID
+    let id: String
     var name: String
     var classId: String
     var className: String
@@ -24,7 +24,7 @@ struct StudyGroup: Identifiable, Codable {
     var createdAt: Date
     var sessions: [StudySession]
     
-    init(id: UUID = UUID(),
+    init(id: String = UUID().uuidString,
          name: String,
          classId: String,
          className: String,
@@ -63,8 +63,8 @@ struct StudyGroup: Identifiable, Codable {
 
 // MARK: - Study Session
 struct StudySession: Identifiable, Codable {
-    let id: UUID
-    var groupId: UUID
+    let id: String
+    var groupId: String
     var title: String
     var description: String
     var startTime: Date
@@ -76,8 +76,8 @@ struct StudySession: Identifiable, Codable {
     var recurrenceRule: RecurrenceRule?
     var status: SessionStatus
     
-    init(id: UUID = UUID(),
-         groupId: UUID,
+    init(id: String = UUID().uuidString,
+         groupId: String,
          title: String,
          description: String = "",
          startTime: Date,

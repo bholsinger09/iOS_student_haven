@@ -93,7 +93,7 @@ class StudyGroupViewModel: ObservableObject {
         loadData()
     }
     
-    func deleteGroup(id: UUID) {
+    func deleteGroup(id: String) {
         studyGroupManager.deleteStudyGroup(id: id)
         loadData()
         if selectedGroup?.id == id {
@@ -167,17 +167,17 @@ class StudyGroupViewModel: ObservableObject {
         }
     }
     
-    func updateSession(groupId: UUID, session: StudySession) {
+    func updateSession(groupId: String, session: StudySession) {
         studyGroupManager.updateSession(groupId: groupId, session: session)
         loadData()
     }
     
-    func deleteSession(groupId: UUID, sessionId: UUID) {
+    func deleteSession(groupId: String, sessionId: String) {
         studyGroupManager.deleteSession(groupId: groupId, sessionId: sessionId)
         loadData()
     }
     
-    func joinSession(groupId: UUID, session: StudySession) {
+    func joinSession(groupId: String, session: StudySession) {
         let result = studyGroupManager.joinSession(
             groupId: groupId,
             sessionId: session.id,
