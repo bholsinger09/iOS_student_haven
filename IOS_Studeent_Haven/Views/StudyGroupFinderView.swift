@@ -219,6 +219,7 @@ struct StudyGroupDetailView: View {
     let group: StudyGroup
     @ObservedObject var viewModel: StudyGroupViewModel
     @State private var selectedTab = 0
+    @State private var showingInviteMember = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -315,6 +316,24 @@ struct StudyGroupDetailView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if selectedTab == 1 && viewModel.isUserMember(of: group) {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingInviteMember = true
+                    } label: {
+                        Image(systemName: "person.badge.plus")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingInviteMember) {
+            InviteMemberView(
+                studyGroup: group,
+                userRepository: MockUserRepository(),
+                studyGroupManager: StudyGroupManagementUseCase()
+            )
+        }
     }
 }
 
