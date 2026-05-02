@@ -9,17 +9,17 @@ import Foundation
 import CoreLocation
 
 // MARK: - Study Group Management Use Case
-class StudyGroupManagementUseCase {
+public class StudyGroupManagementUseCase {
     private var studyGroups: [StudyGroup] = []
     private var userStudyGroups: Set<String> = [] // Groups the user is a member of
     
-    init() {
+    public init() {
         loadStudyGroups()
         loadUserGroups()
     }
     
     // MARK: - Group Management
-    func createStudyGroup(_ group: StudyGroup) -> StudyGroup {
+    public func createStudyGroup(_ group: StudyGroup) -> StudyGroup {
         var newGroup = group
         newGroup.memberIds.append(group.creatorId)
         studyGroups.append(newGroup)
@@ -28,29 +28,29 @@ class StudyGroupManagementUseCase {
         return newGroup
     }
     
-    func updateStudyGroup(_ group: StudyGroup) {
+    public func updateStudyGroup(_ group: StudyGroup) {
         if let index = studyGroups.firstIndex(where: { $0.id == group.id }) {
             studyGroups[index] = group
             saveStudyGroups()
         }
     }
     
-    func deleteStudyGroup(id: String) {
+    public func deleteStudyGroup(id: String) {
         studyGroups.removeAll { $0.id == id }
         userStudyGroups.remove(id)
         saveStudyGroups()
     }
     
-    func getStudyGroup(id: String) -> StudyGroup? {
+    public func getStudyGroup(id: String) -> StudyGroup? {
         return studyGroups.first { $0.id == id }
     }
     
-    func getAllStudyGroups() -> [StudyGroup] {
+    public func getAllStudyGroups() -> [StudyGroup] {
         return studyGroups
     }
     
     // MARK: - Search and Filter
-    func searchStudyGroups(filter: StudyGroupFilter) -> [StudyGroup] {
+    public func searchStudyGroups(filter: StudyGroupFilter) -> [StudyGroup] {
         var filtered = studyGroups
         
         // Filter by class
@@ -83,16 +83,16 @@ class StudyGroupManagementUseCase {
         return filtered
     }
     
-    func getStudyGroupsForClass(classId: String) -> [StudyGroup] {
+    public func getStudyGroupsForClass(classId: String) -> [StudyGroup] {
         return studyGroups.filter { $0.classId == classId }
     }
     
-    func getUserStudyGroups(userId: String) -> [StudyGroup] {
+    public func getUserStudyGroups(userId: String) -> [StudyGroup] {
         return studyGroups.filter { $0.memberIds.contains(userId) }
     }
     
     // MARK: - Membership Management
-    func joinStudyGroup(groupId: String, userId: String) -> Result<StudyGroup, StudyGroupError> {
+    public func joinStudyGroup(groupId: String, userId: String) -> Result<StudyGroup, StudyGroupError> {
         guard let index = studyGroups.firstIndex(where: { $0.id == groupId }) else {
             return .failure(.groupNotFound)
         }
@@ -115,7 +115,7 @@ class StudyGroupManagementUseCase {
         return .success(group)
     }
     
-    func leaveStudyGroup(groupId: String, userId: String) -> Result<Void, StudyGroupError> {
+    public func leaveStudyGroup(groupId: String, userId: String) -> Result<Void, StudyGroupError> {
         guard let index = studyGroups.firstIndex(where: { $0.id == groupId }) else {
             return .failure(.groupNotFound)
         }
@@ -140,7 +140,7 @@ class StudyGroupManagementUseCase {
     }
     
     // MARK: - Session Management
-    func addSession(to groupId: String, session: StudySession) -> Result<StudyGroup, StudyGroupError> {
+    public func addSession(to groupId: String, session: StudySession) -> Result<StudyGroup, StudyGroupError> {
         guard let index = studyGroups.firstIndex(where: { $0.id == groupId }) else {
             return .failure(.groupNotFound)
         }
@@ -153,7 +153,7 @@ class StudyGroupManagementUseCase {
         return .success(group)
     }
     
-    func updateSession(groupId: String, session: StudySession) {
+    public func updateSession(groupId: String, session: StudySession) {
         guard let groupIndex = studyGroups.firstIndex(where: { $0.id == groupId }),
               let sessionIndex = studyGroups[groupIndex].sessions.firstIndex(where: { $0.id == session.id }) else {
             return
@@ -163,7 +163,7 @@ class StudyGroupManagementUseCase {
         saveStudyGroups()
     }
     
-    func deleteSession(groupId: String, sessionId: String) {
+    public func deleteSession(groupId: String, sessionId: String) {
         guard let groupIndex = studyGroups.firstIndex(where: { $0.id == groupId }) else {
             return
         }
@@ -172,7 +172,7 @@ class StudyGroupManagementUseCase {
         saveStudyGroups()
     }
     
-    func getUpcomingSessions(forUserId userId: String) -> [StudySession] {
+    public func getUpcomingSessions(forUserId userId: String) -> [StudySession] {
         let userGroups = studyGroups.filter { $0.memberIds.contains(userId) }
         var allSessions: [StudySession] = []
         
@@ -184,7 +184,7 @@ class StudyGroupManagementUseCase {
         return allSessions.sorted { $0.startTime < $1.startTime }
     }
     
-    func joinSession(groupId: String, sessionId: String, userId: String) -> Result<StudySession, StudyGroupError> {
+    public func joinSession(groupId: String, sessionId: String, userId: String) -> Result<StudySession, StudyGroupError> {
         guard let groupIndex = studyGroups.firstIndex(where: { $0.id == groupId }),
               let sessionIndex = studyGroups[groupIndex].sessions.firstIndex(where: { $0.id == sessionId }) else {
             return .failure(.sessionNotFound)
@@ -265,7 +265,7 @@ class StudyGroupManagementUseCase {
 }
 
 // MARK: - Study Group Errors
-enum StudyGroupError: LocalizedError {
+public enum StudyGroupError: LocalizedError {
     case groupNotFound
     case groupFull
     case alreadyMember
@@ -274,7 +274,7 @@ enum StudyGroupError: LocalizedError {
     case sessionNotFound
     case sessionFull
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .groupNotFound:
             return "Study group not found"

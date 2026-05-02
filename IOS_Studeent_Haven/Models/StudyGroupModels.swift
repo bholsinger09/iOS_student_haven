@@ -9,22 +9,22 @@ import Foundation
 import CoreLocation
 
 // MARK: - Study Group
-struct StudyGroup: Identifiable, Codable {
-    let id: String
-    var name: String
-    var classId: String
-    var className: String
-    var description: String
-    var creatorId: String
-    var creatorName: String
-    var memberIds: [String]
-    var maxMembers: Int
-    var isPublic: Bool
-    var tags: [String]
-    var createdAt: Date
-    var sessions: [StudySession]
+public struct StudyGroup: Identifiable, Codable {
+    public let id: String
+    public var name: String
+    public var classId: String
+    public var className: String
+    public var description: String
+    public var creatorId: String
+    public var creatorName: String
+    public var memberIds: [String]
+    public var maxMembers: Int
+    public var isPublic: Bool
+    public var tags: [String]
+    public var createdAt: Date
+    public var sessions: [StudySession]
     
-    init(id: String = UUID().uuidString,
+    public init(id: String = UUID().uuidString,
          name: String,
          classId: String,
          className: String,
@@ -52,31 +52,31 @@ struct StudyGroup: Identifiable, Codable {
         self.sessions = sessions
     }
     
-    var isFull: Bool {
+    public var isFull: Bool {
         return memberIds.count >= maxMembers
     }
     
-    var availableSpots: Int {
+    public var availableSpots: Int {
         return max(0, maxMembers - memberIds.count)
     }
 }
 
 // MARK: - Study Session
-struct StudySession: Identifiable, Codable {
-    let id: String
-    var groupId: String
-    var title: String
-    var description: String
-    var startTime: Date
-    var endTime: Date
-    var location: SessionLocation
-    var attendeeIds: [String]
-    var maxAttendees: Int?
-    var isRecurring: Bool
-    var recurrenceRule: RecurrenceRule?
-    var status: SessionStatus
+public struct StudySession: Identifiable, Codable {
+    public let id: String
+    public var groupId: String
+    public var title: String
+    public var description: String
+    public var startTime: Date
+    public var endTime: Date
+    public var location: SessionLocation
+    public var attendeeIds: [String]
+    public var maxAttendees: Int?
+    public var isRecurring: Bool
+    public var recurrenceRule: RecurrenceRule?
+    public var status: SessionStatus
     
-    init(id: String = UUID().uuidString,
+    public init(id: String = UUID().uuidString,
          groupId: String,
          title: String,
          description: String = "",
@@ -102,31 +102,31 @@ struct StudySession: Identifiable, Codable {
         self.status = status
     }
     
-    var duration: TimeInterval {
+    public var duration: TimeInterval {
         return endTime.timeIntervalSince(startTime)
     }
     
-    var isUpcoming: Bool {
+    public var isUpcoming: Bool {
         return startTime > Date() && status == .scheduled
     }
     
-    var isFull: Bool {
+    public var isFull: Bool {
         guard let max = maxAttendees else { return false }
         return attendeeIds.count >= max
     }
 }
 
 // MARK: - Session Location
-struct SessionLocation: Codable {
-    var name: String
-    var address: String?
-    var building: String?
-    var room: String?
-    var latitude: Double?
-    var longitude: Double?
-    var locationType: LocationType
+public struct SessionLocation: Codable {
+    public var name: String
+    public var address: String?
+    public var building: String?
+    public var room: String?
+    public var latitude: Double?
+    public var longitude: Double?
+    public var locationType: LocationType
     
-    init(name: String,
+    public init(name: String,
          address: String? = nil,
          building: String? = nil,
          room: String? = nil,
@@ -142,7 +142,7 @@ struct SessionLocation: Codable {
         self.locationType = locationType
     }
     
-    var fullAddress: String {
+    public var fullAddress: String {
         var components: [String] = [name]
         if let building = building {
             components.append(building)
@@ -156,14 +156,14 @@ struct SessionLocation: Codable {
         return components.joined(separator: ", ")
     }
     
-    var coordinate: CLLocationCoordinate2D? {
+    public var coordinate: CLLocationCoordinate2D? {
         guard let lat = latitude, let lon = longitude else { return nil }
         return CLLocationCoordinate2D(latitude: lat, longitude: lon)
     }
 }
 
 // MARK: - Location Type
-enum LocationType: String, Codable, CaseIterable {
+public enum LocationType: String, Codable, CaseIterable {
     case campus = "Campus"
     case library = "Library"
     case cafe = "Cafe"
@@ -172,7 +172,7 @@ enum LocationType: String, Codable, CaseIterable {
 }
 
 // MARK: - Session Status
-enum SessionStatus: String, Codable {
+public enum SessionStatus: String, Codable {
     case scheduled = "Scheduled"
     case inProgress = "In Progress"
     case completed = "Completed"
@@ -180,12 +180,12 @@ enum SessionStatus: String, Codable {
 }
 
 // MARK: - Recurrence Rule
-struct RecurrenceRule: Codable {
-    var frequency: RecurrenceFrequency
-    var interval: Int // Every X days/weeks/months
-    var endDate: Date?
+public struct RecurrenceRule: Codable {
+    public var frequency: RecurrenceFrequency
+    public var interval: Int // Every X days/weeks/months
+    public var endDate: Date?
     
-    init(frequency: RecurrenceFrequency,
+    public init(frequency: RecurrenceFrequency,
          interval: Int = 1,
          endDate: Date? = nil) {
         self.frequency = frequency
@@ -194,7 +194,7 @@ struct RecurrenceRule: Codable {
     }
 }
 
-enum RecurrenceFrequency: String, Codable, CaseIterable {
+public enum RecurrenceFrequency: String, Codable, CaseIterable {
     case daily = "Daily"
     case weekly = "Weekly"
     case biweekly = "Biweekly"
@@ -202,16 +202,16 @@ enum RecurrenceFrequency: String, Codable, CaseIterable {
 }
 
 // MARK: - Study Group Member
-struct StudyGroupMember: Identifiable, Codable {
-    let id: String // User ID
-    var name: String
-    var email: String?
-    var major: String?
-    var year: String?
-    var joinedAt: Date
-    var role: MemberRole
+public struct StudyGroupMember: Identifiable, Codable {
+    public let id: String // User ID
+    public var name: String
+    public var email: String?
+    public var major: String?
+    public var year: String?
+    public var joinedAt: Date
+    public var role: MemberRole
     
-    init(id: String,
+    public init(id: String,
          name: String,
          email: String? = nil,
          major: String? = nil,
@@ -228,22 +228,22 @@ struct StudyGroupMember: Identifiable, Codable {
     }
 }
 
-enum MemberRole: String, Codable {
+public enum MemberRole: String, Codable {
     case creator = "Creator"
     case admin = "Admin"
     case member = "Member"
 }
 
 // MARK: - Study Group Filter
-struct StudyGroupFilter {
-    var classId: String?
-    var tags: [String]
-    var maxDistance: Double? // in meters
-    var userLocation: CLLocationCoordinate2D?
-    var onlyAvailable: Bool // Not full
-    var searchQuery: String
+public struct StudyGroupFilter {
+    public var classId: String?
+    public var tags: [String]
+    public var maxDistance: Double? // in meters
+    public var userLocation: CLLocationCoordinate2D?
+    public var onlyAvailable: Bool // Not full
+    public var searchQuery: String
     
-    init(classId: String? = nil,
+    public init(classId: String? = nil,
          tags: [String] = [],
          maxDistance: Double? = nil,
          userLocation: CLLocationCoordinate2D? = nil,
