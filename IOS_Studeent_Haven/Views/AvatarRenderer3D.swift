@@ -2,12 +2,11 @@
 //  AvatarRenderer3D.swift
 //  IOS_Student_Haven
 //
-//  3D avatar renderer with ARKit TrueDepth, Vision, and procedural fallbacks
+//  3D avatar renderer with Vision and procedural fallbacks
 //
 
 import SwiftUI
 import SceneKit
-import ARKit
 
 struct AvatarRenderer3D: UIViewRepresentable {
     let avatar: Avatar
@@ -42,7 +41,7 @@ struct AvatarRenderer3D: UIViewRepresentable {
         // Setup lighting
         setupLighting(scene: scene)
         
-        // Load avatar with priority: TrueDepth → Vision → Procedural
+        // Load avatar with priority: Asset → Vision → Procedural
         loadAvatar(into: scene, context: context)
         
         // CRITICAL: Set scene AFTER everything is loaded
@@ -65,10 +64,9 @@ struct AvatarRenderer3D: UIViewRepresentable {
         // Remove existing avatar nodes
         scene.rootNode.childNode(withName: "avatar", recursively: false)?.removeFromParentNode()
         scene.rootNode.childNode(withName: "asset_avatar", recursively: false)?.removeFromParentNode()
-        scene.rootNode.childNode(withName: "truedepth_face", recursively: false)?.removeFromParentNode()
         scene.rootNode.childNode(withName: "vision_face", recursively: false)?.removeFromParentNode()
         
-        // Load avatar with priority: TrueDepth → Vision → Procedural
+        // Load avatar with priority: Asset → Vision → Procedural
         loadAvatar(into: scene, context: context)
         
         print("🔄 AvatarRenderer3D: updateUIView completed, scene has \(scene.rootNode.childNodes.count) nodes")
@@ -81,15 +79,11 @@ struct AvatarRenderer3D: UIViewRepresentable {
         if avatar.hasAssetSelected {
             loadAssetAvatar(into: scene, context: context)
         }
-        // Priority 2: ARKit TrueDepth scan
-        else if #available(iOS 13.0, *), avatar.hasTrueDepthScan {
-            loadTrueDepthAvatar(into: scene, context: context)
-        }
-        // Priority 3: Vision framework scan
+        // Priority 2: Vision framework scan
         else if avatar.hasVisionScan, let photoData = avatar.facePhotoData, let photo = UIImage(data: photoData) {
             loadVisionAvatar(into: scene, photo: photo, context: context)
         }
-        // Priority 4: Procedural avatar (fallback)
+        // Priority 3: Procedural avatar (fallback)
         else {
             loadProceduralAvatar(into: scene, context: context)
         }
@@ -123,47 +117,17 @@ struct AvatarRenderer3D: UIViewRepresentable {
         scene.rootNode.addChildNode(avatarNode)
     }
     
-    @available(iOS 13.0, *)
-    private func loadTrueDepthAvatar(into scene: SCNScene, context: Context) {
-        // For now, we'll regenerate from photo since ARFaceGeometry serialization is complex
-        // In production, you'd properly serialize/deserialize ARFaceGeometry vertex/index data
-        
-        if let photoData = avatar.arFacePhotoData, let photo = UIImage(data: photoData) {
-            // Show photo-based preview for now
-            // TODO: Implement full ARFaceGeometry deserialization and rendering
-            print("TrueDepth avatar detected - showing photo preview")
-            
-            // Fallback to Vision for now
-            if let visionPhoto = avatar.facePhotoData.flatMap({ UIImage(data: $0) }) ?? (avatar.arFacePhotoData.flatMap({ UIImage(data: $0) })) {
-                loadVisionAvatar(into: scene, photo: visionPhoto, context: context)
-            } else {
-                loadProceduralAvatar(into: scene, context: context)
-            }
-        } else {
-            // No photo, fallback to procedural
-            loadProceduralAvatar(into: scene, context: context)
-        }
-    }
-    
     private func loadVisionAvatar(into scene: SCNScene, photo: UIImage, context: Context) {
         VisionFaceCaptureService.shared.detectFace(in: photo) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let analysis):
-                    if #available(iOS 17.0, *) {
-                        let faceNode = ARFaceMeshBuilder.shared.buildFaceMesh(
-                            from: analysis,
-                            skinTone: self.avatar.appearance.skinTone
-                        )
-                        scene.rootNode.addChildNode(faceNode)
-                        
-                        if context.coordinator.shouldAnimate {
-                            self.addIdleAnimation(to: faceNode)
-                        }
-                    } else {
-                        // Fallback for iOS < 17
-                        let fallbackNode = Custom3DAvatarBuilder.buildAvatar(from: self.avatar)
-                        scene.rootNode.addChildNode(fallbackNode)
+                    // Use procedural builder with Vision analysis
+                    let fallbackNode = Custom3DAvatarBuilder.buildAvatar(from: self.avatar)
+                    scene.rootNode.addChildNode(fallbackNode)
+                    
+                    if context.coordinator.shouldAnimate {
+                        self.addIdleAnimation(to: fallbackNode)
                     }
                 case .failure(let error):
                     print("Failed to generate face mesh: \(error.localizedDescription)")

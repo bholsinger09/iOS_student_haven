@@ -26,11 +26,7 @@ struct Avatar: Identifiable, Codable, Equatable {
     // Pre-made asset library (offline photorealistic 3D models)
     var selectedAssetId: String? // ID of selected pre-made avatar
     
-    // ARKit TrueDepth face scan data (iPhone X+ with TrueDepth camera)
-    var arFaceGeometryData: Data? // Serialized ARFaceGeometry (50k+ vertices)
-    var arFacePhotoData: Data? // High-quality capture from AR session
-    
-    // Vision framework face scan data (fallback for older devices)
+    // Vision framework face scan data
     var facePhotoData: Data? // Captured photo
     var faceLandmarksData: Data? // Serialized FaceAnalysis
     
@@ -45,8 +41,6 @@ struct Avatar: Identifiable, Codable, Equatable {
         self.lastModified = Date()
         self.uses3DAvatar = true
         self.selectedAssetId = nil
-        self.arFaceGeometryData = nil
-        self.arFacePhotoData = nil
         self.facePhotoData = nil
         self.faceLandmarksData = nil
         
@@ -67,19 +61,14 @@ struct Avatar: Identifiable, Codable, Equatable {
         return selectedAssetId != nil
     }
     
-    // Check if this has ARKit TrueDepth scan
-    var hasTrueDepthScan: Bool {
-        return arFaceGeometryData != nil
-    }
-    
-    // Check if this has Vision framework scan (fallback)
+    // Check if this has Vision framework scan
     var hasVisionScan: Bool {
         return facePhotoData != nil && faceLandmarksData != nil
     }
     
     // Check if this is any type of face-scanned avatar
     var isFaceScanned: Bool {
-        hasAssetSelected || hasTrueDepthScan || hasVisionScan
+        hasAssetSelected || hasVisionScan
     }
     
     // Age category for proportions
